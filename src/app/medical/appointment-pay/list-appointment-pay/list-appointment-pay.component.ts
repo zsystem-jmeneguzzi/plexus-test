@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { AppointmentPayService } from '../service/appointment-pay.service';
 
@@ -18,7 +18,6 @@ export class ListAppointmentPayComponent {
 
   public appointmentList:any = [];
   dataSource!: MatTableDataSource<any>;
-  @ViewChild('closebutton') closebutton:any;
 
   public showFilter = false;
   public specialitie_id = '';
@@ -44,6 +43,7 @@ export class ListAppointmentPayComponent {
   public text_validation:string = '';
 
   public payment_selected:any;
+  public user:any;
   constructor(
     public appointmentPayService: AppointmentPayService,
   ){
@@ -55,6 +55,27 @@ export class ListAppointmentPayComponent {
     this.appointmentPayService.listConfig().subscribe((resp:any) => {
       this.specialities = resp.specialities;
     })
+    this.user = this.appointmentPayService.authService.user;
+  }
+
+  isPermited(){
+    let band = false;
+    this.user.roles.forEach((rol:any) => {
+      if((rol).toUpperCase().indexOf("DOCTOR") != -1){
+        band = true;
+      }
+    });
+    return band;
+  }
+  
+ isPermision(permission:string){
+    if(this.user.roles.includes('Super-Admin')){
+      return true;
+    }
+    if(this.user.permissions.includes(permission)){
+      return true;
+    }
+    return false;
   }
   private getTableData(page=1): void {
     this.appointmentList = [];
@@ -186,9 +207,13 @@ export class ListAppointmentPayComponent {
       if(INDEX != -1){
         data.payments.splice(INDEX,1);
 
-        this.closebutton.nativeElement.click();
+        $('#delete_patient').hide();
+        $("#delete_patient").removeClass("show");
+        $(".modal-backdrop").remove();
+        $("body").removeClass();
+        $("body").removeAttr("style");
+
         this.payment_selected = null;
-        
       }
     })
   }

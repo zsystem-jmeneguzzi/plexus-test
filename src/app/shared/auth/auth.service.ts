@@ -60,6 +60,7 @@ export class AuthService {
   }
 
   logout(){
+    console.log("borrando");
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('authenticated');

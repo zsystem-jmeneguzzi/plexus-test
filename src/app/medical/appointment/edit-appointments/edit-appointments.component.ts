@@ -70,7 +70,7 @@ export class EditAppointmentsComponent {
         this.selected_segment_hour = this.appointment_selected.selected_segment_hour;
         this.amount = this.appointment_selected.amount;
         this.hour = this.appointment_selected.segment_hour.format_segment.hour;
-         this.filtro();
+        // this.filtro();
       })
 
     })

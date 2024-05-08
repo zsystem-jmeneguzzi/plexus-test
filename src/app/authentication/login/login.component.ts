@@ -15,11 +15,11 @@ export class LoginComponent implements OnInit {
   public ERROR = false;
 
   form = new FormGroup({
-    email: new FormControl('juan@juan.com', [
+    email: new FormControl('email@email.com', [
       Validators.required,
       Validators.email,
     ]),
-    password: new FormControl('12345678', [Validators.required]),
+    password: new FormControl('xxxxxxxx', [Validators.required]),
   });
 
   get f() {
@@ -28,8 +28,12 @@ export class LoginComponent implements OnInit {
 
   constructor(public auth: AuthService, public router: Router) {}
   ngOnInit(): void {
+    // localStorage.removeItem('user');
+    // localStorage.removeItem('token');
     if (localStorage.getItem('authenticated')) {
       localStorage.removeItem('authenticated');
+      this.router.navigate([routes.adminDashboard]);
+      
     }
   }
 
@@ -40,7 +44,9 @@ export class LoginComponent implements OnInit {
       .subscribe((resp:any)=> {
         if(resp){
           // EL LOGING ES EXITOSO
-          this.router.navigate([routes.adminDashboard]);
+          setTimeout(() => {
+            document.location.reload();
+          }, 50);
         }else{
           // EL LOGIN NO ES EXITOSO
           this.ERROR = true;

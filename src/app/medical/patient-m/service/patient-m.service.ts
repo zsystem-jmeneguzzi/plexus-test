@@ -25,6 +25,11 @@ export class PatientMService {
     return this.http.post(URL,data,{headers: headers});
   }
 
+  profilePatient(staff_id:string){
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+this.authService.token});
+    let URL = URL_SERVICIOS+"/patients/profile/"+staff_id;
+    return this.http.get(URL,{headers: headers});
+  }
   showPatient(staff_id:string){
     let headers = new HttpHeaders({'Authorization': 'Bearer '+this.authService.token});
     let URL = URL_SERVICIOS+"/patients/"+staff_id;

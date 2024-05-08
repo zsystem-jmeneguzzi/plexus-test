@@ -135,5 +135,7 @@ export class AddAppointmentsComponent {
     this.surname = '';
     this.mobile = ''
     this.n_document = 0;
+    this.name_companion = '';
+    this.surname_companion = '';
   }
 }

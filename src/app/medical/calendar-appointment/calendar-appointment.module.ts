@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
 import { CalendarAppointmentRoutingModule } from './calendar-appointment-routing.module';
 import { CalendarAppointmentComponent } from './calendar-appointment.component';
 import { AppointmentCalendarComponent } from './appointment-calendar/appointment-calendar.component';

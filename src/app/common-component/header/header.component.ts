@@ -27,7 +27,13 @@ export class HeaderComponent {
     let USER = localStorage.getItem('user');
     this.user = JSON.parse(USER ? USER :'');
   }
-
+  getRole(){
+    let RoleName ="";
+    this.user.roles.forEach((rol:any)=>{
+      RoleName = rol
+    });
+    return RoleName;
+  }
   openBoxFunc() {
     this.openBox = !this.openBox;
     /* eslint no-var: off */
