@@ -2,6 +2,8 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { MedicalComponent } from './medical.component';
 import { AuthGuard } from '../shared/gaurd/auth.guard';
+import { IncomeExpenseSummaryComponent } from '../income-expense-summary/income-expense-summary.component';
+
 
 // http://localhost:4200/roles/register
 const routes: Routes = [
@@ -36,6 +38,11 @@ const routes: Routes = [
           import('./patient-m/patient-m.module').then((m) => m.PatientMModule),
       },
       {
+        path: 'carpeta',
+        loadChildren: () =>
+          import('./carpeta/carpeta.module').then((m) => m.CarpetaModule),
+      },
+      {
         path: 'appointment-m',
         loadChildren: () =>
           import('./appointment/appointment.module').then((m) => m.AppointmentModule),
@@ -51,6 +58,12 @@ const routes: Routes = [
         loadChildren: () =>
           import('./calendar-appointment/calendar-appointment.module').then((m) => m.CalendarAppointmentModule),
       },
+      
+
+      { path: 'income-expense-summary',
+        component: IncomeExpenseSummaryComponent },
+
+
     ]
   }
 ];

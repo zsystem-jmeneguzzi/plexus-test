@@ -1,8 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { IncomeExpenseSummaryComponent } from './income-expense-summary/income-expense-summary.component';
+
 // import { AuthGuard } from './shared/gaurd/auth.guard';
 
 const routes: Routes = [
+  { path: 'income-expense-summary', component: IncomeExpenseSummaryComponent },
+
   {
     path: '',
     pathMatch: 'full',

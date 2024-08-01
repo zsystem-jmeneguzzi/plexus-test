@@ -1,5 +1,5 @@
 export const environment = {
-    URL_BACKEND: 'http://api.zsystem.com.ar',
-    URL_SERVICIOS: 'http://api.zsystem.com.ar/api',
-    URL_FRONEND: 'http://admin.zsystem.com.ar'
+    URL_BACKEND: 'http://192.168.1.101:8000',
+    URL_SERVICIOS: 'http://192.168.1.101:8000/api',
+    URL_FRONEND: 'http://192.168.1.99:4200'
 };

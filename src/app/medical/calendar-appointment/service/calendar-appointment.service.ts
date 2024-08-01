@@ -1,5 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { URL_SERVICIOS } from 'src/app/config/config';
 import { AuthService } from 'src/app/shared/auth/auth.service';
 
@@ -17,6 +18,10 @@ export class CalendarAppointmentService {
     let headers = new HttpHeaders({'Authorization': 'Bearer '+this.authService.token});
     let URL = URL_SERVICIOS+"/appointment/calendar";
     return this.http.post(URL,data,{headers: headers});
+  }
+  getMovimientos(): Observable<any> {
+    let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.token });
+    return this.http.get(`${URL_SERVICIOS}/movimientos`, { headers });
   }
 
 }

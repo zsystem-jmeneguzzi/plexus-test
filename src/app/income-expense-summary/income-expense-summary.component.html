@@ -1,0 +1,96 @@
+<div class="main-wrapper">
+  <app-header [ngClass]="{'d-none': sideBarActivePath === false && headerActivePath === false}"></app-header>
+  <app-sidebar [ngClass]="{'d-none': sideBarActivePath === false && headerActivePath === false}"></app-sidebar>
+  <div class="page-wrapper">
+    <div class="content">
+      <div class="row">
+        <div class="col-sm-12">
+          <h2>Resumen de Ingresos y Egresos</h2>
+          <!-- Contenido de la vista -->
+          <div class="row">
+            <div class="col-12">
+              <!-- Filtros -->
+              <div class="row">
+              <div class="col-12 col-md-6 col-xl-3 form-group">
+                <label for="carpeta">Nombre de la Carpeta</label>
+                <input type="text" id="carpeta" [(ngModel)]="filtroCarpeta" class="form-control">
+              </div>
+              <div class="col-12 col-md-6 col-xl-3 form-group">
+                <label for="abogado">Nombre del Abogado</label>
+                <input type="text" id="abogado" [(ngModel)]="filtroAbogado" class="form-control">
+              </div>
+              <div class="col-12 col-md-6 col-xl-3 form-group">
+                <label for="fechaInicio">Fecha de Inicio</label>
+                <input type="date" id="fechaInicio" [(ngModel)]="filtroFechaInicio" class="form-control">
+              </div>
+              <div class="col-12 col-md-6 col-xl-3 form-group">
+                <label for="fechaFin">Fecha de Fin</label>
+                <input type="date" id="fechaFin" [(ngModel)]="filtroFechaFin" class="form-control">
+              </div>
+              <button (click)="aplicarFiltros()" class="btn btn-primary">Aplicar Filtros</button>
+              </div>
+              <!-- Tabla de Ingresos y Egresos -->
+              <div class="table-responsive">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Fecha</th>
+                      <th>Autos</th>
+                      <th>Concepto</th>
+                      <th>Ingreso</th>
+                      <th>Egreso</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of ingresosEgresos; let i = index">
+                      <td>{{ item.fecha | date:'dd/MM/yyyy' }}</td>
+                      <td>{{ item.autos }}</td>
+                      <td>{{ item.concepto }}</td>
+                      <td>{{item.tipo === 'ingreso' ? (item.monto | currency) : ''}}</td>
+                                <td>{{item.tipo === 'egreso' ? (item.monto | currency) : ''}}</td>
+                      <td *ngIf="item.tipo === 'ingreso'"></td>
+                      <td *ngIf="item.tipo === 'egreso'"></td>
+                      <td>
+                        <button (click)="eliminarIngresoEgreso(i)" class="btn btn-danger btn-sm">X</button>
+                    </td>
+                    </tr>
+                  </tbody>
+                  <tfoot>
+                    <tr>
+                      <td colspan="3" class="text-end">Subtotal Ingresos:</td>
+                      <td>{{ subtotalIngresos | currency }}</td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td colspan="3" class="text-end">Subtotal Egresos:</td>
+                      <td></td>
+                      <td>{{ subtotalEgresos | currency }}</td>
+                    </tr>
+                    <tr>
+                      <td colspan="3" class="text-end">Total:</td>
+                      <td>{{ subtotalIngresos - subtotalEgresos | currency }}</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+              <div class="form-group">
+                <label for="concepto">Concepto:</label>
+                <input type="text" id="concepto" [(ngModel)]="concepto" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="monto">Monto:</label>
+                <input type="number" id="monto" [(ngModel)]="monto" class="form-control">
+            </div>
+            <div class="form-group text-center">
+                <button (click)="agregarIngreso()" class="btn btn-success mt-2 me-2">Agregar Ingreso</button>
+                <button (click)="agregarEgreso()" class="btn btn-danger mt-2">Agregar Egreso</button>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

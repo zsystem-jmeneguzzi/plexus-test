@@ -1,0 +1,168 @@
+<div class="page-wrapper">
+    <div class="content">
+    
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="row">
+                <div class="col-sm-12">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">Carpetas </a></li>
+                        <li class="breadcrumb-item"><i class="feather icon-chevron-right"></i></li>
+                        <li class="breadcrumb-item active">Nueva Carpeta</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- /Page Header -->
+        <div class="row">
+            <div class="col-sm-12">
+            
+                <div class="card">
+                    <div class="card-body">
+                        <form>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="form-heading">
+                                        <h4>Nueva Carpeta</h4>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 col-xl-4">  
+                                    <div class="form-group local-forms">
+                                        <label >Autos <span class="login-danger">*</span></label>
+                                        <input class="form-control" [(ngModel)]="autos" name="autos" type="text"  >
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="form-group local-forms">
+                                        <label >nro_carpeta <span class="login-danger">*</span></label>
+                                        <input class="form-control" [(ngModel)]="nro_carpeta" name="nro_carpeta" type="text"  >
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="form-group local-forms">
+                                        <label >fecha_inicio <span class="login-danger">*</span></label>
+                                        <input class="form-control datetimepicker" [(ngModel)]="fecha_inicio" name="fecha_inicio" type="text" matInput [matDatepicker]="picker"  >
+                                        <mat-datepicker #picker></mat-datepicker>
+                                        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="form-group local-forms">
+                                        <label >tipo_proceso_id <span class="login-danger">*</span></label>
+                                        <input class="form-control" [(ngModel)]="tipo_proceso_id" name="tipo_proceso_id" type="text"  >
+                                    </div>
+                                </div>
+                                <!-- <div class="col-12 col-md-6 col-xl-6">
+                                    <div class="form-group select-gender">
+                                        <label class="gen-label">Estado<span class="login-danger">*</span></label>
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" name="estado" value="1" [(ngModel)]="estado" class="form-check-input">En Tramite
+                                            </label>
+                                        </div>
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" name="estado" value="2" [(ngModel)]="estado" class="form-check-input">Finalizado
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div> -->
+                                
+                                <!-- <div class="col-12 col-md-4 col-xl-4">
+                                    <div class="form-group select-gender">
+                                        <label class="gen-label">Gender<span class="login-danger">*</span></label>
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" name="gender" value="1" [(ngModel)]="gender" class="form-check-input">Male
+                                            </label>
+                                        </div>
+                                        <div class="form-check-inline">
+                                            <label class="form-check-label">
+                                                <input type="radio" name="gender" value="2" [(ngModel)]="gender" class="form-check-input">Female
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div> -->
+                                
+
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="form-group local-forms">
+                                        <label >descripcion <span class="login-danger">*</span></label>
+                                        <input class="form-control" [(ngModel)]="descripcion" name="descripcion"  type="text"  >
+                                    </div>
+                                </div>
+                                
+                                
+                                 <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="form-group local-forms">
+                                         <label>Abogado <span class="login-danger">*</span></label>
+                                        <mat-select [(ngModel)]="selectedValue" [ngModelOptions]="{standalone: true}" class="form-control select"  placeholder="Select Abogado">
+                                            <mat-option *ngFor="let data of abogados" [value]="data.id">
+                                            {{data.full_name}}
+                                            </mat-option>
+                                        </mat-select>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="form-group local-forms">
+                                        <label>contrarios_id <span class="login-danger">*</span></label>
+                                        <input class="form-control" [(ngModel)]="contrarios_id" name="contrarios_id"  type="text"  >
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="form-group local-forms">
+                                        <label>tercero_id <span class="login-danger">*</span></label>
+                                        <input class="form-control" [(ngModel)]="tercero_id" name="tercero_id"  type="text"  >
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="form-group local-forms">
+                                        <label >N° Documento <span class="login-danger">*</span></label>
+                                        <input class="form-control" (keyup.enter)="filterPatient()"  [(ngModel)]="n_document" name="n_document"  type="number"  >
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <div class="form-group row my-4" *ngIf="text_success">
+                                        <div class="col-md-8">
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <strong>Exito!</strong> {{ text_success }}.
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true"> </span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+            
+                                    <div class="form-group row my-4" *ngIf="text_validation">
+                                        <div class="col-md-8">
+                                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                                <strong>!</strong> {{ text_validation }}.
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true"> </span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="doctor-submit text-end">
+                                        <button type="button" (click)="save()" class="btn btn-primary submit-form me-2">Guardar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>							
+            </div>	
+            
+            
+
+
+        </div>
+    </div>
+</div>
+ 

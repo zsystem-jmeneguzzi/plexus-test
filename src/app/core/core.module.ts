@@ -1,3 +1,4 @@
+// core.module.ts
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -21,5 +22,6 @@ import { ModalComponent } from './modal/modal.component';
     CoreRoutingModule,
     SharedModule
   ],
+  
 })
 export class CoreModule { }

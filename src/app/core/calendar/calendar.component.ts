@@ -27,12 +27,13 @@ export class CalendarComponent {
     this.options = {
       plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
       initialDate: new Date(),
+      
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay',
       },
-      initialView: 'dayGridMonth',
+      initialView: 'timeGridWeek',
       editable: true,
       selectable: true,
       selectMirror: true,

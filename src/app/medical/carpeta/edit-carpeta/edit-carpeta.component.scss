@@ -1,0 +1,57 @@
+.blog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.blog-title {
+    margin: 0;
+}
+
+.blog-status {
+    display: flex;
+    align-items: center;
+}
+
+.blog-status .custom-badge {
+    margin-right: 10px;
+}
+
+.blog-date {
+    display: flex;
+    align-items: center;
+}
+.archivo-adjunto {
+    margin-top: 10px;
+}
+
+.archivo-icono {
+    font-size: 20px;
+}
+
+.archivo-nombre {
+    font-size: 14px;
+    color: #555;
+}
+
+.alert {
+    display: inline-block;
+    margin: 0;
+    padding: 0.375rem 0.75rem;
+}
+
+.tag-button {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .tag-button.selected {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+  

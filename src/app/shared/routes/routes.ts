@@ -254,6 +254,25 @@ export class routes {
   public static get patientsList(): string {
     return this.baseUrl + '/patient-m/list';
   }
+
+  public static get addCarpeta(): string {
+    return this.baseUrl + '/carpeta/register';
+  }
+  public static get editCarpeta(): string {
+    return this.baseUrl + '/carpeta/edit-carpeta';
+  }
+  // public static get patientProfile(): string {
+  //   return this.baseUrl + '/patient/patient-profile';
+  // }
+  public static get carpetaSetting(): string {
+    return this.baseUrl + '/carpeta/carpeta-setting';
+  }
+  public static get carpetaList(): string {
+    return this.baseUrl + '/carpeta/list';
+  }
+
+
+
   public static get addSalary(): string {
     return this.baseUrl + '/payroll/add-salary';
   }
@@ -361,5 +380,8 @@ export class routes {
   }
   public static get listadoRole(): string {
     return this.baseUrl + '/roles/list';
+  }
+  public static get incomeExpenseSummary(): string {
+    return this.baseUrl + '/income-expense-summary';
   }
 }

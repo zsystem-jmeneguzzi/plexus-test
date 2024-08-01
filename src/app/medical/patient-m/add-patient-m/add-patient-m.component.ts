@@ -15,7 +15,7 @@ export class AddPatientMComponent {
 
   public birth_date:string = '';
   public gender:number = 1;
-  public education:string = '';
+  public tramiteDNI:string = '';
   public address:string = '';
 
   public antecedent_family:string = '';
@@ -93,8 +93,9 @@ export class AddPatientMComponent {
       formData.append("birth_date",this.birth_date);
     }
     formData.append("gender",this.gender+"");
-    if(this.education){
-      formData.append("education",this.education);
+
+    if(this.tramiteDNI){
+      formData.append("tramiteDNI",this.tramiteDNI);
     }
     if(this.address){
       formData.append("address",this.address);
@@ -147,7 +148,7 @@ export class AddPatientMComponent {
       if(resp.message == 403){
         this.text_validation = resp.message_text;
       }else{
-        this.text_success = 'El paciente ha sido registrado correctamente';
+        this.text_success = 'El cliente ha sido registrado correctamente';
 
         this.name = '';
         this.surname = '';
@@ -155,9 +156,8 @@ export class AddPatientMComponent {
         this.mobile  = '';
         this.birth_date  = '';
         this.gender  = 1;
-        this.education  = '';
-
         this.n_document  = '';
+        this.tramiteDNI = '';
         this.antecedent_family  = '';
         this.antecedent_personal  = '';
         this.antecedent_allergic  = '';

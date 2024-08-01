@@ -1,0 +1,282 @@
+<script src="https://apis.google.com/js/api.js"></script>
+<div class="page-wrapper">
+    <div class="content">
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="row">
+                <div class="col-sm-12">
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a [routerLink]="[ '/carpeta/list/' ]">Carpeta </a></li>
+                        <li class="breadcrumb-item"><i class="feather icon-chevron-right"></i></li>
+                        <li class="breadcrumb-item active">Numero {{nro_carpeta}}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <!-- /Page Header -->
+        <div class="row">
+            <div class="col-md-8">
+                <div class="blog-view">
+                    <article class="blog blog-single-post">
+                        <div class="blog-header">
+                            <h3 class="blog-title">{{autos}}</h3>
+                            <div class="blog-status">
+                                <button (click)="cambiarEstado()"
+                                    [ngClass]="{'status-green' : estado === 1, 'status-pink' : estado === 2}"
+                                    class="custom-badge">
+                                    {{estado == 1 ? 'En trámite' : 'Finalizado' }}
+                                </button>
+                                <p class="blog-date">Fecha de inicio: {{fecha_inicio}}</p>
+                            </div>
+                        </div>
+                        <div class="blog-info clearfix"></div>
+                        <div class="blog-content">
+                            <p>{{descripcion}}</p>
+                        </div>
+                    </article>
+
+                    <!-- Movimientos -->
+                    <div class="widget activity-box">
+                        <h3>Movimientos</h3>
+                        <ul class="table-responsive">
+                            <li *ngFor="let item of movimientosFiltrados; let i = index">
+                                <div class="comment">
+                                    <div class="comment-block">
+                                        <div class="activity-user">
+                                            <div class="week-group">
+                                                <span class="week-list">{{ item.created_at }}</span>
+                                            </div>
+                                            <span class="float-end">
+                                                <span class="blog-reply"><a href="javascript:void(0);" (click)="deleteMovimiento(i)">
+                                                        <i class="fa fa-trash"></i> Borrar</a></span>
+                                            </span>
+                                        </div>
+
+                                        <div class="comman-activitys flex-grow-1">
+                                            <h3>{{item.comentario}}</h3>
+                                            <div class="archivo-adjunto d-flex justify-content-between align-items-center" *ngIf="item.archivo_url">
+                                                <a [href]="item.archivo_url" target="_blank" class="archivo-link d-flex align-items-center">
+                                                    <i *ngIf="isPdf(item.archivo_url)" class="fas fa-file-pdf archivo-icono"> </i>
+                                                    <i *ngIf="isWord(item.archivo_url)" class="fas fa-file-word archivo-icono"> </i>
+                                                    <span class="archivo-nombre ms-2">{{ item.archivo_nombre }}</span>
+                                                </a>
+                                            </div>
+                                            <p *ngIf="item.fecha_vencimiento" class="text-end">Agenda: {{ item.fecha_vencimiento }} : {{ item.hora_vencimiento }}</p>
+                                            <p *ngIf="item.tipo_evento" class="text-end">
+                                                <span [ngClass]="getEventoClass(item.tipo_evento)" class="alert alert-dismissible fade show">
+                                                    {{ item.tipo_evento }}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div *ngIf="movimientos.length === 0">
+                            <p>No hay movimientos disponibles.</p>
+                        </div>
+                    </div>
+
+                    <!-- Nuevo movimiento -->
+                    <div class="col-md-12">
+                        <div class="widget new-comment clearfix">
+                            <h3>Nuevo movimiento de la causa</h3>
+                            <form (ngSubmit)="onSubmit()" enctype="multipart/form-data">
+                                <div class="row">
+                                    <div class="col-12 col-sm-12">
+                                        <div class="form-group local-forms">
+                                            <label for="Comments">Comentario <span class="login-danger">*</span></label>
+                                            <textarea class="form-control" [(ngModel)]="comentario" name="comentario" rows="3" cols="30"></textarea>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6">
+                                        <div class="form-group local-forms">
+                                            <label for="vencimiento">Fecha de Vencimiento </label>
+                                            <input type="date" class="form-control" [(ngModel)]="vencimiento" name="vencimiento" [min]="today" />
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group local-forms">
+                                            <label for="hora_vencimiento">Hora de Vencimiento </label>
+                                            <input type="time" class="form-control" [(ngModel)]="hora_vencimiento" name="hora_vencimiento" />
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="form-group local-forms">
+                                            <label for="tipo_evento">Tipo de Evento</label>
+                                            <select class="form-control" [(ngModel)]="tipo_evento" name="tipo_evento">
+                                                <option value="Tareas">Tareas</option>
+                                                <option value="Vencimientos">Vencimientos</option>
+                                                <option value="Compromisos">Compromisos</option>
+                                                <option value="Audiencias">Audiencias</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-6 " >
+                                        <div class="form-group local-forms">
+                                            <label for="archivo" class="upload">Adjuntar Archivo</label>
+                                            <input type="file" (change)="onFileSelected($event)" class="form-control" />
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 text-end">
+                                        <button class="btn btn-primary submit-form me-2" type="submit">Guardar</button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="row align-items-center">
+                                <div class="col-12">
+                                    <div class="form-group row my-4" *ngIf="text_success">
+                                        <div class="col-md-8">
+                                            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                                <strong>¡Éxito!</strong> {{ text_success }}.
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true"> </span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row my-4" *ngIf="text_validation">
+                                        <div class="col-md-8">
+                                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                                <strong>¡Atención!</strong> {{ text_validation }}.
+                                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                                                    <span aria-hidden="true"> </span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+            <aside class="col-md-4">
+                <!-- Widget Abogado Asignado -->
+                <div class="widget author-widget">
+                    <div class="authr-blog-group text-center">
+                        <div class="authr-blg-img mb-2"></div>
+                        <span>Abogado asignado: </span>
+                        <h2>{{getAbogadoNombre(abogado_id)}}</h2>
+                        <ul class="nav social-blk"></ul>
+                    </div>
+                </div>
+            
+                <!-- Widget Filtro -->
+                <div class="widget tags-widget">
+                    <div class="relat-head">
+                        <h5>Filtro</h5>
+                    </div>
+                    <ul class="tags">
+                        <li><a href="javascript:void(0);" class="tag" (click)="filtrarMovimientos('Audiencias')">Audiencias</a></li>
+                        <li><a href="javascript:void(0);" class="tag" (click)="filtrarMovimientos('Compromisos')">Compromisos</a></li>
+                        <li><a href="javascript:void(0);" class="tag" (click)="filtrarMovimientos('Tareas')">Tareas</a></li>
+                        <li><a href="javascript:void(0);" class="tag" (click)="filtrarMovimientos('Vencimientos')">Vencimientos</a></li>
+                        <li><a href="javascript:void(0);" class="tag" (click)="filtrarMovimientos('')">Mostrar Todos</a></li>
+                    </ul>
+                </div>
+            
+                <!-- Widget Ingresos y Egresos -->
+                <div class="widget ingresos-egresos-widget">
+                    <div class="relat-head">
+                      <h5>Ingresos y Egresos</h5>
+                    </div>
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Fecha</th>
+                            <th>Concepto</th>
+                            <th>Ingreso</th>
+                            <th>Egreso</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr *ngFor="let item of ingresosEgresos; let i = index">
+                            <td>{{ item.fecha | date:'dd/MM/yyyy' }}</td>
+                            <td>{{ item.concepto }}</td>
+                            <td *ngIf="item.tipo === 'ingreso'; else emptyCell">{{ item.monto | currency }}</td>
+                            <ng-template #emptyCell><td></td></ng-template>
+                            <td *ngIf="item.tipo === 'egreso'; else emptyCellEgreso">{{ item.monto | currency }}</td>
+                            <ng-template #emptyCellEgreso><td></td></ng-template>
+                            <td>
+                              <button (click)="eliminarIngresoEgreso(i)" class="btn btn-danger btn-sm">X</button>
+                            </td>
+                          </tr>
+                        </tbody>
+                        <tbody>
+                          <tr>
+                            <td colspan="2" class="text-end">Subtotal: </td>
+                            <td>{{ subtotalIngresos | currency }}</td>
+                            <td>{{ subtotalEgresos | currency }}</td>
+                            <td></td>
+                          </tr>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="2" class="text-end">Total: </td>
+                            <td>{{ subtotalIngresos - subtotalEgresos | currency }}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                      
+                      
+                    <div class="form-group">
+                      <label for="concepto">Concepto:</label>
+                      <input type="text" id="concepto" [(ngModel)]="concepto" class="form-control">
+                    </div>
+                    <div class="form-group">
+                      <label for="monto">Monto:</label>
+                      <input type="number" id="monto" [(ngModel)]="monto" class="form-control">
+                    </div>
+                    <div class="form-group text-center">
+                      <button (click)="agregarIngreso()" class="btn btn-success mt-2 me-2">Agregar Ingreso</button>
+                      <button (click)="agregarEgreso()" class="btn btn-danger mt-2">Agregar Egreso</button>
+                    </div>
+                  </div>
+                  
+
+                <!-- Widget Archivos Adjuntos -->
+                <div class="widget archivos-widget">
+                    <div class="relat-head">
+                        <h5>Archivos Adjuntos</h5>
+                    </div>
+                    <ul class="list-group" *ngIf="archivos && archivos.length > 0">
+                        <li class="list-group-item" *ngFor="let archivo of archivos">
+                            <a [href]="archivo.archivo" target="_blank">{{ archivo.archivo_nombre }}</a>
+                        </li>
+                    </ul>
+                    <div *ngIf="archivos.length === 0">
+                        <p>No hay archivos adjuntos disponibles.</p>
+                    </div>
+                </div>
+            
+                <!-- Sistema de Tags -->
+                <div class="widget tags-widget">
+                    <div class="relat-head">
+                        <h5>Tags</h5>
+                    </div>
+                <div *ngFor="let tag of allTags" (click)="toggleTag(tag)" [ngClass]="{'selected': isSelected(tag)}" class="tag-button">
+                    {{ tag.name }}
+                </div>
+                <br><br>
+                <div>
+                    <input [(ngModel)]="newTagName" placeholder="Nuevo tag" />
+                    <button (click)="addTag()">Añadir</button>
+                </div>
+                
+                </div>
+                <!-- /Sistema de Tags -->
+  
+            </aside>
+        </div>
+    </div>
+</div>
