@@ -5,7 +5,7 @@ import { AddCarpetaComponent } from './add-carpeta/add-carpeta.component';
 import { EditCarpetaComponent } from './edit-carpeta/edit-carpeta.component';
 import { ListCarpetaComponent } from './list-carpeta/list-carpeta.component';
 import { MovimientosComponent } from './movimientos/movimientos.component';
-
+// dd
 
 const routes: Routes = [{
   path:'',
