@@ -52,39 +52,7 @@
                                         <input class="form-control" [(ngModel)]="tipo_proceso_id" name="tipo_proceso_id" type="text"  >
                                     </div>
                                 </div>
-                                <!-- <div class="col-12 col-md-6 col-xl-6">
-                                    <div class="form-group select-gender">
-                                        <label class="gen-label">Estado<span class="login-danger">*</span></label>
-                                        <div class="form-check-inline">
-                                            <label class="form-check-label">
-                                                <input type="radio" name="estado" value="1" [(ngModel)]="estado" class="form-check-input">En Tramite
-                                            </label>
-                                        </div>
-                                        <div class="form-check-inline">
-                                            <label class="form-check-label">
-                                                <input type="radio" name="estado" value="2" [(ngModel)]="estado" class="form-check-input">Finalizado
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div> -->
-                                
-                                <!-- <div class="col-12 col-md-4 col-xl-4">
-                                    <div class="form-group select-gender">
-                                        <label class="gen-label">Gender<span class="login-danger">*</span></label>
-                                        <div class="form-check-inline">
-                                            <label class="form-check-label">
-                                                <input type="radio" name="gender" value="1" [(ngModel)]="gender" class="form-check-input">Male
-                                            </label>
-                                        </div>
-                                        <div class="form-check-inline">
-                                            <label class="form-check-label">
-                                                <input type="radio" name="gender" value="2" [(ngModel)]="gender" class="form-check-input">Female
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div> -->
-                                
-
+                               
                                 <div class="col-12 col-md-6 col-xl-4">
                                     <div class="form-group local-forms">
                                         <label >descripcion <span class="login-danger">*</span></label>
@@ -118,13 +86,37 @@
                                     </div>
                                 </div>
 
+                            </div>
+                            </form>
+                        </div>
+                    </div>		            
+                                    
+                    <div class="card">
+                        <div class="card-body">
+                            <form>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-heading">
+                                            <h4>Cliente</h4>
+                                        </div>
+                                    </div>
+                                <!-- Cliente -->
                                 <div class="col-12 col-md-6 col-xl-4">
                                     <div class="form-group local-forms">
-                                        <label >N° Documento <span class="login-danger">*</span></label>
+                                        <label>Cliente <span class="login-danger">*</span></label>
+                                        <select class="form-control" [(ngModel)]="selectedClient" (change)="onClientSelect($event)" name="client" required>
+                                            <option *ngFor="let client of clients" [value]="client.id">{{ client.surname }}, {{ client.name }}</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- N° Documento Autocompletable -->
+                                <div class="col-12 col-md-6 col-xl-4">
+                                    <div class="form-group local-forms">
+                                        <label >N° Documento (presione enter al colocar el numero)<span class="login-danger">*</span></label>
                                         <input class="form-control" (keyup.enter)="filterPatient()"  [(ngModel)]="n_document" name="n_document"  type="number"  >
                                     </div>
                                 </div>
-
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
                                 <div class="col-12">
                                     <div class="form-group row my-4" *ngIf="text_success">
                                         <div class="col-md-8">
@@ -153,16 +145,17 @@
                                         <button type="button" (click)="save()" class="btn btn-primary submit-form me-2">Guardar</button>
                                     </div>
                                 </div>
+                                
                             </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
-                </div>							
-            </div>	
-            
-            
-
-
+                    
+            </div>
+                        
+                    					
+        </div>	
         </div>
     </div>
-</div>
+
  

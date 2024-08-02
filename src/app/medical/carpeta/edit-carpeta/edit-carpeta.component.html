@@ -169,7 +169,17 @@
                         <ul class="nav social-blk"></ul>
                     </div>
                 </div>
-            
+               <!-- Widget Cliente Asignado -->
+               <div class="widget author-widget">
+                <div class="authr-blog-group text-center">
+                  <div class="authr-blg-img mb-2"></div>
+                  <span>Cliente: </span>
+                  <h2 [routerLink]="[ '/patient-m/list/edit/', cliente_id ]">{{getClientName(cliente_id)}}</h2>
+                  <ul class="nav social-blk"></ul>
+                </div>
+              </div>
+              
+
                 <!-- Widget Filtro -->
                 <div class="widget tags-widget">
                     <div class="relat-head">

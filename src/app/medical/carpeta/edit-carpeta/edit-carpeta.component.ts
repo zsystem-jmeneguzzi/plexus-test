@@ -49,7 +49,7 @@ export class EditCarpetaComponent implements OnInit {
   public abogado_id: any = [];
   public contrarios_id: any = [];
   public tercero_id: any = [];
-  public cliente_id: any = [];
+  public cliente_id: any = '';
   public carpeta_selected: any;
 
   abogados: Abogado[] = [];
@@ -76,6 +76,7 @@ export class EditCarpetaComponent implements OnInit {
   public selectedTags: Tag[] = [];
   public allTags: Tag[] = [];
   public newTagName: string = '';
+  public clientes: any[] = [];
 
   nombre_abogado: any;
   comentario: any;
@@ -96,7 +97,7 @@ export class EditCarpetaComponent implements OnInit {
     this.movimientosFiltrados = [];
     this.archivos = [];
     this.ingresosEgresos = [];
-   }
+  }
 
   @NgModule({
     providers: [
@@ -110,40 +111,49 @@ export class EditCarpetaComponent implements OnInit {
     this.today = todayDate.toISOString().split('T')[0];
 
     this.activedRoute.params.subscribe((resp: any) => {
-        this.carpeta_id = resp.id;
+      this.carpeta_id = resp.id;
 
-        this.doctorService.listDoctors().subscribe((resp: any) => {
-            this.abogados = resp.users.data.map((abogado: any): Abogado => {
-                return { full_name: abogado.full_name, id: abogado.id, education: abogado.education };
-            });
+      this.doctorService.listDoctors().subscribe((resp: any) => {
+        this.abogados = resp.users.data.map((abogado: any): Abogado => {
+          return { full_name: abogado.full_name, id: abogado.id, education: abogado.education };
         });
+      });
 
-        this.carpetaService.showCarpeta(this.carpeta_id).subscribe((resp: any) => {
-            this.carpeta_selected = resp.carpetas;
-            this.autos = this.carpeta_selected.autos;
-            this.nro_carpeta = this.carpeta_selected.nro_carpeta;
-            this.fecha_inicio = new Date(this.carpeta_selected.fecha_inicio).toLocaleDateString();
-            this.tipo_proceso_id = this.carpeta_selected.tipo_proceso_id;
-            this.estado = this.carpeta_selected.estado;
-            this.descripcion = this.carpeta_selected.descripcion;
-            this.abogado_id = this.carpeta_selected.abogado_id;
-            this.contrarios_id = this.carpeta_selected.contrarios_id;
-            this.tercero_id = this.carpeta_selected.tercero_id;
-            this.cliente_id = this.carpeta_selected.cliente_id;
-            this.tags = this.carpeta_selected.tags || [];
+      this.carpetaService.showCarpeta(this.carpeta_id).subscribe((resp: any) => {
+        console.log(resp);
+        this.carpeta_selected = resp.carpetas;
+        this.autos = this.carpeta_selected.autos;
+        this.cliente_id = this.carpeta_selected.cliente_id;
+        this.nro_carpeta = this.carpeta_selected.nro_carpeta;
+        this.fecha_inicio = new Date(this.carpeta_selected.fecha_inicio).toLocaleDateString();
+        this.tipo_proceso_id = this.carpeta_selected.tipo_proceso_id;
+        this.estado = this.carpeta_selected.estado;
+        this.descripcion = this.carpeta_selected.descripcion;
+        this.abogado_id = this.carpeta_selected.abogado_id;
+        this.contrarios_id = this.carpeta_selected.contrarios_id;
+        this.tercero_id = this.carpeta_selected.tercero_id;
+        this.tags = this.carpeta_selected.tags || [];
+
+        this.carpetaService.getAllPatients().subscribe((resp: any) => {
+          this.clientes = resp.patients;
         });
+      });
 
-        this.cargarMovimientos();
-        this.cargarArchivosAdjuntos();
+      this.cargarMovimientos();
+      this.cargarArchivosAdjuntos();
     });
 
-    const id:any = this.activedRoute.snapshot.paramMap.get('id');
+    const id: any = this.activedRoute.snapshot.paramMap.get('id');
     this.carpeta_id = +id;
     this.cargarIngresosEgresos();
     this.loadTags();
     this.loadSelectedTags();
-}
+  }
 
+  getClientName(cliente_id: number): string {
+    const cliente = this.clientes.find(cliente => cliente.id === cliente_id);
+    return cliente ? `${cliente.name} ${cliente.surname}` : 'Desconocido';
+  }
 
   onFileSelected(event: any): void {
     const file: File = event.target.files[0];
@@ -192,7 +202,6 @@ export class EditCarpetaComponent implements OnInit {
           return {
             ...movimiento,
             abogado_nombre: this.getAbogadoNombre(movimiento.abogado_id),
-            abogado_education: this.getAbogadoEducation(movimiento.abogado_id),
             archivo_url: movimiento.archivo ? movimiento.archivo : null,
             archivo_nombre: movimiento.archivo_nombre ? movimiento.archivo_nombre : null,
             fecha_vencimiento: movimiento.fecha_vencimiento ? new Date(movimiento.fecha_vencimiento).toLocaleDateString() : null,
@@ -218,11 +227,6 @@ export class EditCarpetaComponent implements OnInit {
   getAbogadoNombre(abogado_id: number): string {
     const abogado = this.abogados.find(abogado => abogado.id === abogado_id);
     return abogado ? abogado.full_name : 'Desconocido';
-  }
-
-  getAbogadoEducation(abogado_id: number): string {
-    const abogado = this.abogados.find(abogado => abogado.id === abogado_id);
-    return abogado ? abogado.education : 'Desconocido';
   }
 
   isPdf(url: string): boolean {
@@ -263,7 +267,6 @@ export class EditCarpetaComponent implements OnInit {
     this.carpetaService.getIngresosEgresos(this.carpeta_id).subscribe(
       (resp: any) => {
         this.ingresosEgresos = resp || [];
-        console.log(resp);
         this.calcularSubtotal();
       },
       (error) => {
@@ -271,7 +274,6 @@ export class EditCarpetaComponent implements OnInit {
       }
     );
   }
-  
 
   agregarIngreso(): void {
     if (!this.user || !this.user.id) {
@@ -380,22 +382,22 @@ export class EditCarpetaComponent implements OnInit {
 
   loadSelectedTags() {
     this.carpetaService.getTags(+this.carpeta_id).subscribe(
-        (response: any) => {
-            if (response.tags && Array.isArray(response.tags)) {
-                this.selectedTags = response.tags;
-            } else if (Array.isArray(response)) {
-                this.selectedTags = response;
-            } else {
-                console.error('Error: la respuesta no es un arreglo ni contiene una propiedad tags con un arreglo', response);
-                this.selectedTags = []; // Asegurarse de que selectedTags sea un arreglo
-            }
-        },
-        error => {
-            console.error('Error cargando tags seleccionados: ', error);
-            this.selectedTags = []; // Asegurarse de que selectedTags sea un arreglo
+      (response: any) => {
+        if (response.tags && Array.isArray(response.tags)) {
+          this.selectedTags = response.tags;
+        } else if (Array.isArray(response)) {
+          this.selectedTags = response;
+        } else {
+          console.error('Error: la respuesta no es un arreglo ni contiene una propiedad tags con un arreglo', response);
+          this.selectedTags = []; // Asegurarse de que selectedTags sea un arreglo
         }
+      },
+      error => {
+        console.error('Error cargando tags seleccionados: ', error);
+        this.selectedTags = []; // Asegurarse de que selectedTags sea un arreglo
+      }
     );
-}
+  }
 
   addTag() {
     if (this.newTagName.trim() === '') {
@@ -415,7 +417,7 @@ export class EditCarpetaComponent implements OnInit {
   saveTags() {
     // Obtener los IDs de los tags seleccionados
     const tagIds = this.selectedTags.map(tag => tag.id);
-  
+
     // Enviar una solicitud a la API de Laravel para actualizar los tags de la carpeta
     this.carpetaService.updateCarpetaTags(this.carpeta_id, tagIds).subscribe(
       () => {
@@ -430,16 +432,15 @@ export class EditCarpetaComponent implements OnInit {
   toggleTag(tag: Tag) {
     const index = this.selectedTags.findIndex(t => t.id === tag.id);
     if (index > -1) {
-        this.selectedTags.splice(index, 1);
+      this.selectedTags.splice(index, 1);
     } else {
-        this.selectedTags.push(tag);
+      this.selectedTags.push(tag);
     }
     // Guardar el estado actualizado de los tags
     this.saveTags();
-}
+  }
 
-isSelected(tag: Tag): boolean {
+  isSelected(tag: Tag): boolean {
     return this.selectedTags.some(t => t.id === tag.id);
-}
-
+  }
 }

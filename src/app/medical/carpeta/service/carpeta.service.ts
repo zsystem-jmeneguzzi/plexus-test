@@ -133,6 +133,22 @@ export class CarpetaService {
     const url = `${URL_SERVICIOS}/carpetas/${carpetaId}/tags`;
     return this.http.put<void>(url, { tag_ids: tagIds }, { headers });
   }
+
+   getDocumentSuggestions(n_document: string): Observable<any> {
+     let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.token });
+     let URL = URL_SERVICIOS + `/patients/document-suggestions?n_document=${n_document}`;
+     return this.http.get(URL, { headers: headers });
+   }
+   listPatient(n_document:string = ''){
+    let headers = new HttpHeaders({'Authorization': 'Bearer '+this.authService.token});
+    let URL = URL_SERVICIOS+"/appointment/patient?n_document="+n_document;
+    return this.http.get(URL,{headers: headers});
+  }
+  getAllPatients(): Observable<any> {
+    let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.token });
+    let URL = URL_SERVICIOS + "/patients";
+    return this.http.get(URL, { headers: headers });
+  }
   
 }
-
+ 
