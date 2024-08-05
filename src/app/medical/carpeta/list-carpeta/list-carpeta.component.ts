@@ -65,9 +65,6 @@ export class ListCarpetaComponent {
     this.serialNumberArray = [];
     
     this.carpetaService.listCarpeta(page,this.searchDataValue).subscribe((resp:any) => {
-
-      console.log(resp);
-
       this.totalData = resp.total;
       this.carpetasList = resp.carpetas.data;
       // this.getTableDataGeneral();

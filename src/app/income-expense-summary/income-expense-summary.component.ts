@@ -9,6 +9,7 @@ interface IngresoEgreso {
   fecha: Date;
   autos: string;
   concepto: string;
+  abogado: string;
 }
 
 @Component({
@@ -21,7 +22,6 @@ export class IncomeExpenseSummaryComponent implements OnInit {
   headerActivePath: boolean = true;
 
   filtroCarpeta: string = '';
-  filtroAbogado: string = '';
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
 
@@ -30,9 +30,7 @@ export class IncomeExpenseSummaryComponent implements OnInit {
 
   subtotalIngresos: number = 0;
   subtotalEgresos: number = 0;
-  totalIngresos: number = 0;
-  totalEgresos: number = 0;
-  carpeta_id: any =0;
+  carpeta_id: any = 0;
 
   public text_success: string = '';
   public text_validation: string = '';
@@ -52,20 +50,16 @@ export class IncomeExpenseSummaryComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = JSON.parse(localStorage.getItem('user') || '{}');
-
     this.loadIngresosEgresos();
-
     this.activedRoute.params.subscribe((resp: any) => {
       this.carpeta_id = resp.id;
-      console.log(resp);
     });
   }
 
   loadIngresosEgresos() {
     this.incomeExpenseSummaryService.getAllIngresosEgresos().subscribe((data: any) => {
       this.ingresosEgresos = data.map((item: any) => {
-        const fechaUTC = new Date(item.fecha);
-        const fechaLocal = new Date(fechaUTC.getTime() + fechaUTC.getTimezoneOffset() * 60000 - 3 * 3600000); // Convertir a Buenos Aires
+        const fechaLocal = new Date(item.fecha); // Asume que las fechas ya están en la zona horaria correcta
         return {
           ...item,
           monto: parseFloat(item.monto),
@@ -74,18 +68,25 @@ export class IncomeExpenseSummaryComponent implements OnInit {
       });
       this.aplicarFiltros();
     });
-}
+  }
+  
 
-aplicarFiltros(): void {
-  this.ingresosEgresosFiltrados = this.ingresosEgresos.filter(item => {
-    const cumpleCarpeta = this.filtroCarpeta ? item.autos?.includes(this.filtroCarpeta) : true;
-    const cumpleAbogado = this.filtroAbogado ? item.autos?.includes(this.filtroAbogado) : true;
-    const cumpleFechaInicio = this.filtroFechaInicio ? new Date(item.fecha) >= new Date(this.filtroFechaInicio) : true;
-    const cumpleFechaFin = this.filtroFechaFin ? new Date(item.fecha) <= new Date(this.filtroFechaFin) : true;
-    return cumpleCarpeta && cumpleAbogado && cumpleFechaInicio && cumpleFechaFin;
-  });
-  this.calcularSubtotales();
-}
+  aplicarFiltros(): void {
+    this.ingresosEgresosFiltrados = this.ingresosEgresos.filter(item => {
+      const cumpleCarpeta = this.filtroCarpeta ? item.autos?.includes(this.filtroCarpeta) : true;
+      const cumpleFechaInicio = this.filtroFechaInicio ? new Date(item.fecha) >= new Date(this.filtroFechaInicio) : true;
+      const cumpleFechaFin = this.filtroFechaFin ? new Date(item.fecha) <= new Date(this.filtroFechaFin) : true;
+      return cumpleCarpeta && cumpleFechaInicio && cumpleFechaFin;
+    });
+    this.calcularSubtotales();
+  }
+
+  limpiarFiltros(): void {
+    this.filtroCarpeta = '';
+    this.filtroFechaInicio = '';
+    this.filtroFechaFin = '';
+    this.aplicarFiltros();
+  }
 
   calcularSubtotales() {
     this.subtotalIngresos = this.ingresosEgresosFiltrados
@@ -98,20 +99,11 @@ aplicarFiltros(): void {
   }
 
   eliminarIngresoEgreso(index: number): void {
-    const id = this.ingresosEgresos[index].id;
+    const id = this.ingresosEgresosFiltrados[index].id;
     this.incomeExpenseSummaryService.deleteIngresoEgreso(id).subscribe(() => {
-      this.ingresosEgresos.splice(index, 1);
-      this.calcularSubtotal();
+      this.ingresosEgresosFiltrados.splice(index, 1);
+      this.calcularSubtotales();
     });
-  }
-
-  calcularSubtotal(): void {
-    this.subtotalIngresos = this.ingresosEgresos
-      .filter((item: any) => item.tipo === 'ingreso')
-      .reduce((acc: number, item: any) => acc + Number(item.monto), 0);
-    this.subtotalEgresos = this.ingresosEgresos
-      .filter((item: any) => item.tipo === 'egreso')
-      .reduce((acc: number, item: any) => acc + Number(item.monto), 0);
   }
 
   agregarIngreso(): void {
@@ -119,51 +111,48 @@ aplicarFiltros(): void {
       console.error('Usuario no autenticado o ID de usuario no disponible');
       return;
     }
-  
+
     const data = {
-      carpeta_id: this.carpeta_id || null, // Permitir null
+      carpeta_id: this.carpeta_id || null,
       user_id: this.user.id,
       concepto: this.concepto,
       monto: this.monto,
-      tipo: 'ingreso', // Enviar en minúsculas
+      tipo: 'ingreso',
       fecha: new Date().toISOString().split('T')[0]
     };
-  
+
     this.incomeExpenseSummaryService.addIngresoEgreso(data).subscribe((resp: any) => {
       this.ingresosEgresos.push(resp);
       this.concepto = '';
       this.monto = 0;
-      this.calcularSubtotal();
+      this.calcularSubtotales();
     }, (error) => {
       console.error('Error agregando Ingreso:', error);
     });
   }
-  
+
   agregarEgreso(): void {
     if (!this.user || !this.user.id) {
       console.error('Usuario no autenticado o ID de usuario no disponible');
       return;
     }
-  
+
     const data = {
-      carpeta_id: this.carpeta_id || null, // Permitir null
+      carpeta_id: this.carpeta_id || null,
       user_id: this.user.id,
       concepto: this.concepto,
       monto: this.monto,
-      tipo: 'egreso', // Enviar en minúsculas
+      tipo: 'egreso',
       fecha: new Date().toISOString().split('T')[0]
     };
-  
+
     this.incomeExpenseSummaryService.addIngresoEgreso(data).subscribe((resp: any) => {
       this.ingresosEgresos.push(resp);
       this.concepto = '';
       this.monto = 0;
-      this.calcularSubtotal();
+      this.calcularSubtotales();
     }, (error) => {
       console.error('Error agregando Egreso:', error);
     });
   }
-  
-  
-
 }

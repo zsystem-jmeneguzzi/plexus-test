@@ -8,7 +8,7 @@ import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const token = localStorage.getItem('token');
     if (token) {
       request = request.clone({
@@ -27,6 +27,30 @@ interface Abogado {
   education: string;
 }
 
+interface Movimiento {
+  comentario: string;
+  abogado_nombre: string;
+  archivo_url: string | null;
+  archivo_nombre: string | null;
+  fecha_vencimiento: string | null;
+  tipo_evento: string | null;
+  hora_vencimiento: string | null;
+  [key: string]: any; // Si hay otros campos
+}
+
+interface Archivo {
+  archivo: string;
+  archivo_nombre: string;
+}
+
+interface IngresoEgreso {
+  id: number;
+  fecha: string;
+  concepto: string;
+  tipo: string;
+  monto: number;
+}
+
 export interface Tag {
   id: number;
   name: string;
@@ -39,7 +63,7 @@ export interface Tag {
 })
 export class EditCarpetaComponent implements OnInit {
   public selectedValue!: string;
-  public carpeta_id: any;
+  public carpeta_id: number | undefined;
   public autos: string = '';
   public nro_carpeta: string = '';
   public fecha_inicio: string = '';
@@ -47,16 +71,21 @@ export class EditCarpetaComponent implements OnInit {
   public estado: number = 0;
   public descripcion: string = '';
   public abogado_id: any = [];
-  public contrarios_id: any = [];
-  public tercero_id: any = [];
-  public cliente_id: any = '';
+  public contrarios_id: number[] = [];
+  public tercero_id: number[] = [];
+  public cliente_id: number | undefined;
+  public cuil: string = '';
+  public claveFiscal: string = '';
+  public clave: string = '';
+  public clienteInfo: string = '';
+
   public carpeta_selected: any;
 
   abogados: Abogado[] = [];
   public data: any = [];
   public specialitie: any;
-  public movimientos: any = [];
-  public archivos: any = [];
+  public movimientos: Movimiento[] = [];
+  public archivos: Archivo[] = [];
   public movimiento_carpeta_selected: any;
   public text_success: string = '';
   public text_validation: string = '';
@@ -64,15 +93,15 @@ export class EditCarpetaComponent implements OnInit {
   public hora_vencimiento: string = '08:00';
   public created_at: any = '';
   public user: any;
-  public ingresosEgresos: any = [];
+  public ingresosEgresos: IngresoEgreso[] = [];
   public concepto: string = '';
   public monto: number = 0;
   public tipo: string = 'Ingreso';
   public subtotalIngresos: number = 0;
   public subtotalEgresos: number = 0;
-  public movimientosFiltrados: any[] = [];
+  public movimientosFiltrados: Movimiento[] = [];
 
-  public tags: Tag[] = []; 
+  public tags: Tag[] = [];
   public selectedTags: Tag[] = [];
   public allTags: Tag[] = [];
   public newTagName: string = '';
@@ -84,6 +113,11 @@ export class EditCarpetaComponent implements OnInit {
   archivoNombre: string = '';
   vencimiento: string = '';
   today: string = '';
+  isWidgetAbogadoExpanded: boolean = false;
+  isWidgetClienteExpanded: boolean = false;
+  isWidgetMovimientosExpanded: boolean = false;
+  isWidgetArchivosExpanded: boolean = false;
+  isWidgetTagsExpanded: boolean = false;
 
   constructor(
     public carpetaService: CarpetaService,
@@ -110,17 +144,16 @@ export class EditCarpetaComponent implements OnInit {
     const todayDate = new Date();
     this.today = todayDate.toISOString().split('T')[0];
 
-    this.activedRoute.params.subscribe((resp: any) => {
-      this.carpeta_id = resp.id;
+    this.activedRoute.params.subscribe((params: { [key: string]: string }) => {
+      this.carpeta_id = +params['id'];
 
       this.doctorService.listDoctors().subscribe((resp: any) => {
-        this.abogados = resp.users.data.map((abogado: any): Abogado => {
+        this.abogados = resp.users.data.map((abogado: Abogado) => {
           return { full_name: abogado.full_name, id: abogado.id, education: abogado.education };
         });
       });
 
-      this.carpetaService.showCarpeta(this.carpeta_id).subscribe((resp: any) => {
-        console.log(resp);
+      this.carpetaService.showCarpeta(this.carpeta_id!.toString()).subscribe((resp: any) => {
         this.carpeta_selected = resp.carpetas;
         this.autos = this.carpeta_selected.autos;
         this.cliente_id = this.carpeta_selected.cliente_id;
@@ -134,8 +167,9 @@ export class EditCarpetaComponent implements OnInit {
         this.tercero_id = this.carpeta_selected.tercero_id;
         this.tags = this.carpeta_selected.tags || [];
 
-        this.carpetaService.getAllPatients().subscribe((resp: any) => {
+        this.carpetaService.getAllPatients().subscribe((resp: { patients: any[] }) => {
           this.clientes = resp.patients;
+          this.getClientInfo(this.cliente_id!);
         });
       });
 
@@ -150,20 +184,37 @@ export class EditCarpetaComponent implements OnInit {
     this.loadSelectedTags();
   }
 
-  getClientName(cliente_id: number): string {
+  getClientInfo(cliente_id: number): void {
     const cliente = this.clientes.find(cliente => cliente.id === cliente_id);
-    return cliente ? `${cliente.name} ${cliente.surname}` : 'Desconocido';
+
+    if (cliente) {
+      this.cuil = cliente.cuil;
+      this.claveFiscal = cliente.clave_fiscal;
+      this.clave = cliente.clave_seguridad_social;
+      this.clienteInfo = `${cliente.name} ${cliente.surname}`;
+    } else {
+      this.clienteInfo = 'Desconocido';
+      this.cuil = 'Desconocido';
+      this.claveFiscal = 'Desconocido';
+      this.clave = 'Desconocido';
+    }
   }
 
-  onFileSelected(event: any): void {
-    const file: File = event.target.files[0];
-    const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files && input.files[0];
+    const allowedTypes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'application/vnd.ms-excel',
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    ];
     if (file && allowedTypes.includes(file.type)) {
       this.archivo = file;
       this.archivoNombre = file.name;
     } else {
-      alert('Por favor seleccione un archivo PDF o Word.');
+      alert('Por favor seleccione un archivo PDF, Excel o Word.');
       this.archivo = null;
       this.archivoNombre = '';
     }
@@ -176,9 +227,9 @@ export class EditCarpetaComponent implements OnInit {
     }
 
     const formData = new FormData();
-    formData.append('carpeta_id', this.carpeta_id);
+    formData.append('carpeta_id', String(this.carpeta_id));
     formData.append('comentario', this.comentario);
-    formData.append('abogado_id', this.abogado_id);
+    formData.append('abogado_id', String(this.abogado_id));
     formData.append('fecha_vencimiento', this.vencimiento);
     formData.append('tipo_evento', this.tipo_evento);
     formData.append('hora_vencimiento', this.hora_vencimiento);
@@ -187,7 +238,7 @@ export class EditCarpetaComponent implements OnInit {
       formData.append('archivo', this.archivo);
     }
 
-    this.carpetaService.registerMovimiento(formData).subscribe((resp: any) => {
+    this.carpetaService.registerMovimiento(formData).subscribe(() => {
       this.text_success = "Registrado";
       this.cargarMovimientos();
       this.cargarArchivosAdjuntos();
@@ -195,26 +246,26 @@ export class EditCarpetaComponent implements OnInit {
   }
 
   cargarMovimientos(): void {
-    this.carpetaService.showMovimientos(this.carpeta_id).subscribe((resp: any) => {
+    this.carpetaService.showMovimientos(this.carpeta_id!.toString()).subscribe((resp: any) => {
       this.movimientos = resp.movimientos_carpetas
-        .filter((movimiento: any) => !movimiento.deleted_at)
-        .map((movimiento: any) => {
+        .filter((movimiento: Movimiento) => !movimiento["deleted_at"])
+        .map((movimiento: Movimiento) => {
           return {
             ...movimiento,
-            abogado_nombre: this.getAbogadoNombre(movimiento.abogado_id),
-            archivo_url: movimiento.archivo ? movimiento.archivo : null,
-            archivo_nombre: movimiento.archivo_nombre ? movimiento.archivo_nombre : null,
-            fecha_vencimiento: movimiento.fecha_vencimiento ? new Date(movimiento.fecha_vencimiento).toLocaleDateString() : null,
-            tipo_evento: movimiento.tipo_evento ? movimiento.tipo_evento : null,
-            hora_vencimiento: movimiento.hora_vencimiento ? movimiento.hora_vencimiento : null
+            abogado_nombre: this.getAbogadoNombre(movimiento["abogado_id"]),
+            archivo_url: movimiento["archivo"] ? movimiento["archivo"] : null,
+            archivo_nombre: movimiento["archivo_nombre"] ? movimiento["archivo_nombre"] : null,
+            fecha_vencimiento: movimiento["fecha_vencimiento"] ? new Date(movimiento["fecha_vencimiento"]).toLocaleDateString() : null,
+            tipo_evento: movimiento["tipo_evento"] ? movimiento["tipo_evento"] : null,
+            hora_vencimiento: movimiento["hora_vencimiento"] ? movimiento["hora_vencimiento"] : null
           };
         });
       this.movimientosFiltrados = this.movimientos;
     });
   }
 
-  cargarArchivosAdjuntos() {
-    this.carpetaService.getArchivosAdjuntos(this.carpeta_id).subscribe(
+  cargarArchivosAdjuntos(): void {
+    this.carpetaService.getArchivosAdjuntos(this.carpeta_id!.toString()).subscribe(
       (resp: any) => {
         this.archivos = resp.archivos;
       },
@@ -237,9 +288,13 @@ export class EditCarpetaComponent implements OnInit {
     return url.toLowerCase().endsWith('.doc') || url.toLowerCase().endsWith('.docx');
   }
 
+  isExcel(url: string): boolean {
+    return url.toLowerCase().endsWith('.xls') || url.toLowerCase().endsWith('.xlsx');
+  }
+
   deleteMovimiento(index: number): void {
-    const movimientoId = this.movimientos[index].id;
-    this.carpetaService.deleteMovimiento(movimientoId).subscribe((resp: any) => {
+    const movimientoId = this.movimientos[index]["id"];
+    this.carpetaService.deleteMovimiento(movimientoId).subscribe(() => {
       this.text_success = "Eliminado correctamente";
       this.movimientos.splice(index, 1);
       this.cargarArchivosAdjuntos();
@@ -254,7 +309,7 @@ export class EditCarpetaComponent implements OnInit {
         return 'alert alert-primary';
       case 'Vencimientos':
         return 'alert alert-warning';
-      case 'Compromisos':
+      case 'Turnos':
         return 'alert alert-success';
       case 'Audiencias':
         return 'alert alert-danger';
@@ -264,7 +319,7 @@ export class EditCarpetaComponent implements OnInit {
   }
 
   cargarIngresosEgresos(): void {
-    this.carpetaService.getIngresosEgresos(this.carpeta_id).subscribe(
+    this.carpetaService.getIngresosEgresos(this.carpeta_id!.toString()).subscribe(
       (resp: any) => {
         this.ingresosEgresos = resp || [];
         this.calcularSubtotal();
@@ -289,8 +344,6 @@ export class EditCarpetaComponent implements OnInit {
       tipo: 'ingreso',
       fecha: new Date().toISOString().split('T')[0]
     };
-
-    console.log('Datos enviados:', data);
 
     this.carpetaService.addIngresoEgreso(data).subscribe((resp: any) => {
       this.ingresosEgresos.push(resp);
@@ -317,8 +370,6 @@ export class EditCarpetaComponent implements OnInit {
       fecha: new Date().toISOString().split('T')[0]
     };
 
-    console.log('Datos enviados:', data);
-
     this.carpetaService.addIngresoEgreso(data).subscribe((resp: any) => {
       this.ingresosEgresos.push(resp);
       this.concepto = '';
@@ -330,7 +381,7 @@ export class EditCarpetaComponent implements OnInit {
   }
 
   eliminarIngresoEgreso(index: number): void {
-    const id = this.ingresosEgresos[index].id;
+    const id = this.ingresosEgresos[index]["id"];
     this.carpetaService.deleteIngresoEgreso(id).subscribe(() => {
       this.ingresosEgresos.splice(index, 1);
       this.calcularSubtotal(); // Recalcular el subtotal después de eliminar el ingreso/egreso
@@ -339,11 +390,11 @@ export class EditCarpetaComponent implements OnInit {
 
   calcularSubtotal(): void {
     this.subtotalIngresos = this.ingresosEgresos
-      .filter((item: any) => item.tipo === 'ingreso')
-      .reduce((acc: number, item: any) => acc + Number(item.monto), 0);
+      .filter((item: IngresoEgreso) => item.tipo === 'ingreso')
+      .reduce((acc: number, item: IngresoEgreso) => acc + Number(item.monto), 0);
     this.subtotalEgresos = this.ingresosEgresos
-      .filter((item: any) => item.tipo === 'egreso')
-      .reduce((acc: number, item: any) => acc + Number(item.monto), 0);
+      .filter((item: IngresoEgreso) => item.tipo === 'egreso')
+      .reduce((acc: number, item: IngresoEgreso) => acc + Number(item.monto), 0);
   }
 
   cambiarEstado(): void {
@@ -354,8 +405,8 @@ export class EditCarpetaComponent implements OnInit {
       estado: this.estado
     };
 
-    this.carpetaService.updateEstado(data).subscribe((resp: any) => {
-      console.log('Estado actualizado:', resp);
+    this.carpetaService.updateEstado(data).subscribe(() => {
+      console.log('Estado actualizado');
     }, (error) => {
       console.error('Error actualizando estado:', error);
     });
@@ -363,13 +414,13 @@ export class EditCarpetaComponent implements OnInit {
 
   filtrarMovimientos(tipoEvento: string): void {
     if (tipoEvento) {
-      this.movimientosFiltrados = this.movimientos.filter((movimiento: { tipo_evento: string; }) => movimiento.tipo_evento === tipoEvento);
+      this.movimientosFiltrados = this.movimientos.filter((movimiento: Movimiento) => movimiento.tipo_evento === tipoEvento);
     } else {
       this.movimientosFiltrados = this.movimientos;
     }
   }
 
-  loadTags() {
+  loadTags(): void {
     this.carpetaService.getAllTags().subscribe(
       (tags: Tag[]) => {
         this.allTags = tags;
@@ -380,9 +431,9 @@ export class EditCarpetaComponent implements OnInit {
     );
   }
 
-  loadSelectedTags() {
-    this.carpetaService.getTags(+this.carpeta_id).subscribe(
-      (response: any) => {
+  loadSelectedTags(): void {
+    this.carpetaService.getTags(this.carpeta_id!.toString()).subscribe(
+      (response: { tags?: Tag[], [key: string]: any }) => {
         if (response.tags && Array.isArray(response.tags)) {
           this.selectedTags = response.tags;
         } else if (Array.isArray(response)) {
@@ -399,7 +450,7 @@ export class EditCarpetaComponent implements OnInit {
     );
   }
 
-  addTag() {
+  addTag(): void {
     if (this.newTagName.trim() === '') {
       return;
     }
@@ -414,12 +465,12 @@ export class EditCarpetaComponent implements OnInit {
     );
   }
 
-  saveTags() {
+  saveTags(): void {
     // Obtener los IDs de los tags seleccionados
     const tagIds = this.selectedTags.map(tag => tag.id);
 
     // Enviar una solicitud a la API de Laravel para actualizar los tags de la carpeta
-    this.carpetaService.updateCarpetaTags(this.carpeta_id, tagIds).subscribe(
+    this.carpetaService.updateCarpetaTags(this.carpeta_id!.toString(), tagIds).subscribe(
       () => {
         console.log('Tags guardados correctamente');
       },
@@ -429,7 +480,7 @@ export class EditCarpetaComponent implements OnInit {
     );
   }
 
-  toggleTag(tag: Tag) {
+  toggleTag(tag: Tag): void {
     const index = this.selectedTags.findIndex(t => t.id === tag.id);
     if (index > -1) {
       this.selectedTags.splice(index, 1);
@@ -442,5 +493,25 @@ export class EditCarpetaComponent implements OnInit {
 
   isSelected(tag: Tag): boolean {
     return this.selectedTags.some(t => t.id === tag.id);
+  }
+
+  toggleWidgetAbogado(): void {
+    this.isWidgetAbogadoExpanded = !this.isWidgetAbogadoExpanded;
+  }
+
+  toggleWidgetCliente(): void {
+    this.isWidgetClienteExpanded = !this.isWidgetClienteExpanded;
+  }
+
+  toggleWidgetMovimientos(): void {
+    this.isWidgetMovimientosExpanded = !this.isWidgetMovimientosExpanded;
+  }
+
+  toggleWidgetArchivos(): void {
+    this.isWidgetArchivosExpanded = !this.isWidgetArchivosExpanded;
+  }
+
+  toggleWidgetTags(): void {
+    this.isWidgetTagsExpanded = !this.isWidgetTagsExpanded;
   }
 }

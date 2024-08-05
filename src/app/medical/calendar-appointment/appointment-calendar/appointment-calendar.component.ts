@@ -27,7 +27,7 @@ export class AppointmentCalendarComponent implements OnInit {
   public tipo_evento: string = '';
   public eventos: any[] = []; // Array original de eventos
   public eventosFiltrados: any[] = []; // Array de eventos filtrados
-  public tiposEventos: string[] = ['Audiencias', 'Compromisos', 'Tareas', 'Vencimientos']; // Añadir los tipos de eventos disponibles
+  public tiposEventos: string[] = ['Audiencias', 'Turnos', 'Tareas', 'Vencimientos']; // Añadir los tipos de eventos disponibles
   
 
   constructor(
@@ -85,7 +85,7 @@ export class AppointmentCalendarComponent implements OnInit {
         return 'bg-warning'; // Color amarillo
       case 'Compromisos':
         return 'bg-success'; // Color verde
-      case 'Audiencias':
+      case 'Turnos':
         return 'bg-danger'; // Color rojo
       default:
         return 'bg-secondary'; // Color gris por defecto

@@ -115,12 +115,12 @@ export class CarpetaService {
     return this.http.get<Tag[]>(url, {  headers: headers  });
   }
 
-  getTags(carpetaId: number): Observable<any> {
+  getTags(carpetaId: string): Observable<any> {
     const headers = new HttpHeaders({ 'Authorization': `Bearer ${this.authService.token}` });
     const url = `${URL_SERVICIOS}/carpetas/${carpetaId}/tags`;
     return this.http.get(url, { headers });
   }
-  
+
 
   addTag(tag: { name: string }): Observable<Tag> {
     let headers = new HttpHeaders({'Authorization': 'Bearer ' + this.authService.token});
@@ -128,7 +128,7 @@ export class CarpetaService {
     return this.http.post<Tag>(url, tag, {  headers: headers  });
   }
 
-  updateCarpetaTags(carpetaId: number, tagIds: number[]): Observable<void> {
+  updateCarpetaTags(carpetaId: string, tagIds: number[]): Observable<void> {
     const headers = new HttpHeaders({'Authorization': 'Bearer ' + this.authService.token});
     const url = `${URL_SERVICIOS}/carpetas/${carpetaId}/tags`;
     return this.http.put<void>(url, { tag_ids: tagIds }, { headers });
@@ -149,6 +149,6 @@ export class CarpetaService {
     let URL = URL_SERVICIOS + "/patients";
     return this.http.get(URL, { headers: headers });
   }
-  
+
 }
- 
+

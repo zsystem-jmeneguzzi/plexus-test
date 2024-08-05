@@ -44,7 +44,7 @@
                                     <div class="comment-block">
                                         <div class="activity-user">
                                             <div class="week-group">
-                                                <span class="week-list">{{ item.created_at }}</span>
+                                                <span class="week-list">{{ item['created_at'] }}</span>
                                             </div>
                                             <span class="float-end">
                                                 <span class="blog-reply"><a href="javascript:void(0);" (click)="deleteMovimiento(i)">
@@ -56,8 +56,11 @@
                                             <h3>{{item.comentario}}</h3>
                                             <div class="archivo-adjunto d-flex justify-content-between align-items-center" *ngIf="item.archivo_url">
                                                 <a [href]="item.archivo_url" target="_blank" class="archivo-link d-flex align-items-center">
-                                                    <i *ngIf="isPdf(item.archivo_url)" class="fas fa-file-pdf archivo-icono"> </i>
+                                                    <i *ngIf="isPdf(item.archivo_url)" class="fas fa-file-pdf archivo-icono status-red"> </i>
                                                     <i *ngIf="isWord(item.archivo_url)" class="fas fa-file-word archivo-icono"> </i>
+                                                    <i *ngIf="isExcel(item.archivo_url)" class="fas fa-file-excel archivo-icono status-green"> </i>
+
+
                                                     <span class="archivo-nombre ms-2">{{ item.archivo_nombre }}</span>
                                                 </a>
                                             </div>
@@ -169,17 +172,22 @@
                         <ul class="nav social-blk"></ul>
                     </div>
                 </div>
-               <!-- Widget Cliente Asignado -->
-               <div class="widget author-widget">
-                <div class="authr-blog-group text-center">
-                  <div class="authr-blg-img mb-2"></div>
-                  <span>Cliente: </span>
-                  <h2 [routerLink]="[ '/patient-m/list/edit/', cliente_id ]">{{getClientName(cliente_id)}}</h2>
-                  <ul class="nav social-blk"></ul>
-                </div>
-              </div>
-              
+              <!-- Widget Cliente Asignado -->
+                <div class="widget author-widget">
+                    <div class="authr-blog-group text-center">
+                    <div class="authr-blg-img mb-2"></div>
+                    <span>Cliente: </span>
+                    <h2 [routerLink]="[ '/patient-m/list/edit/', cliente_id ]">{{clienteInfo}}</h2>
 
+                    <ul class="nav social-blk"></ul>
+                    <span>Cuil: </span>
+                    <h2>{{cuil}}</h2>
+                    <span>Clave fiscal: </span>
+                    <h2>{{claveFiscal}}</h2>
+                    <span>Clave: </span>
+                    <h2>{{clave}}</h2>
+                    </div>
+                </div>
                 <!-- Widget Filtro -->
                 <div class="widget tags-widget">
                     <div class="relat-head">
@@ -193,7 +201,7 @@
                         <li><a href="javascript:void(0);" class="tag" (click)="filtrarMovimientos('')">Mostrar Todos</a></li>
                     </ul>
                 </div>
-            
+
                 <!-- Widget Ingresos y Egresos -->
                 <div class="widget ingresos-egresos-widget">
                     <div class="relat-head">
@@ -237,8 +245,8 @@
                           </tr>
                         </tfoot>
                       </table>
-                      
-                      
+
+
                     <div class="form-group">
                       <label for="concepto">Concepto:</label>
                       <input type="text" id="concepto" [(ngModel)]="concepto" class="form-control">
@@ -252,12 +260,13 @@
                       <button (click)="agregarEgreso()" class="btn btn-danger mt-2">Agregar Egreso</button>
                     </div>
                   </div>
-                  
+
 
                 <!-- Widget Archivos Adjuntos -->
                 <div class="widget archivos-widget">
                     <div class="relat-head">
                         <h5>Archivos Adjuntos</h5>
+                        <div class="relat-head" (click)="toggleWidgetArchivos()" (keyup.enter)="toggleWidgetArchivos()" tabindex="0"></div>
                     </div>
                     <ul class="list-group" *ngIf="archivos && archivos.length > 0">
                         <li class="list-group-item" *ngFor="let archivo of archivos">
@@ -268,24 +277,35 @@
                         <p>No hay archivos adjuntos disponibles.</p>
                     </div>
                 </div>
-            
+
                 <!-- Sistema de Tags -->
                 <div class="widget tags-widget">
-                    <div class="relat-head">
-                        <h5>Tags</h5>
+                  <div class="relat-head">
+                      <h5>Tags</h5>
+                      <div class="relat-head" (click)="toggleWidgetTags()" (keyup.enter)="toggleWidgetTags()" tabindex="0">
+                      </div>
+                  </div>
+
+
+                    <div *ngFor="let tag of allTags" (click)="toggleTag(tag)" [ngClass]="{'selected': isSelected(tag)}" class="tag-button">
+                            {{ tag.name }}
                     </div>
-                <div *ngFor="let tag of allTags" (click)="toggleTag(tag)" [ngClass]="{'selected': isSelected(tag)}" class="tag-button">
-                    {{ tag.name }}
-                </div>
-                <br><br>
-                <div>
-                    <input [(ngModel)]="newTagName" placeholder="Nuevo tag" />
-                    <button (click)="addTag()">Añadir</button>
-                </div>
-                
+
+                            <button *ngIf="isWidgetTagsExpanded" (click)="toggleWidgetTags()" class="btn btn-secondary">Contraer</button>
+
+                    <div *ngIf="isWidgetTagsExpanded">
+                    </div>
+
+                        <br><br>
+
+                        <div>
+                            <input [(ngModel)]="newTagName" placeholder="Nuevo tag">
+                            <button (click)="addTag()">Añadir</button>
+                        </div>
+
                 </div>
                 <!-- /Sistema de Tags -->
-  
+
             </aside>
         </div>
     </div>
