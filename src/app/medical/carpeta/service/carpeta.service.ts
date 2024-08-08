@@ -156,7 +156,11 @@ export class CarpetaService {
     return this.http.get(URL, { headers: headers });
   }
 
- 
+  payDeuda(deudaId: number, data: any): Observable<any> {
+    let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.token });
+    const url = `${URL_SERVICIOS}/ingresos-egresos/${deudaId}/pay`;
+    return this.http.post(url, data, { headers: headers });
+  }
   
 }
 

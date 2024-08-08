@@ -54,4 +54,82 @@
     color: white;
     border-color: #007bff;
   }
+  .ingresos-egresos-table {
+    font-size: 12px; /* Ajusta el tamaño de la fuente según tus necesidades */
+  }
   
+  .ingresos-egresos-table th,
+  .ingresos-egresos-table td {
+    padding: 5px; /* Ajusta el espaciado de las celdas si es necesario */
+  }
+  
+  .ingresos-egresos-table .btn-sm {
+    font-size: 10px; /* Ajusta el tamaño de la fuente de los botones si es necesario */
+  }
+  @media (max-width: 768px) {
+    .ingresos-egresos-table {
+      font-size: 10px; /* Tamaño de fuente más pequeño para pantallas pequeñas */
+    }
+  
+    .ingresos-egresos-table th,
+    .ingresos-egresos-table td {
+      padding: 3px;
+    }
+  
+    .ingresos-egresos-table .btn-sm {
+      font-size: 8px;
+    }
+  }
+  /* Estilos para el widget de Ingresos, Egresos y Deudas */
+.ingresos-egresos-table {
+    font-size: 12px; /* Ajusta el tamaño de la fuente según tus necesidades */
+  }
+  
+  .ingresos-egresos-table th,
+  .ingresos-egresos-table td {
+    padding: 5px; /* Ajusta el espaciado de las celdas si es necesario */
+  }
+  
+  .ingresos-egresos-table .btn-sm {
+    font-size: 10px; /* Ajusta el tamaño de la fuente de los botones si es necesario */
+  }
+  
+  /* Estilos para el widget de Cliente Asignado */
+  .cliente-widget {
+    font-size: 12px; /* Ajusta el tamaño de la fuente según tus necesidades */
+  }
+  
+  .cliente-widget .cliente-label,
+  .cliente-widget .cliente-info {
+    font-size: 12px; /* Ajusta el tamaño de la fuente según tus necesidades */
+  }
+  
+  .cliente-widget .cliente-info {
+    font-weight: bold;
+    margin-bottom: 5px; /* Ajusta el margen inferior si es necesario */
+  }
+  @media (max-width: 768px) {
+    .ingresos-egresos-table {
+      font-size: 10px; /* Tamaño de fuente más pequeño para pantallas pequeñas */
+    }
+  
+    .ingresos-egresos-table th,
+    .ingresos-egresos-table td {
+      padding: 3px;
+    }
+  
+    .ingresos-egresos-table .btn-sm {
+      font-size: 8px;
+    }
+  
+    .cliente-widget {
+      font-size: 10px; /* Tamaño de fuente más pequeño para pantallas pequeñas */
+    }
+  
+    .cliente-widget .cliente-label,
+    .cliente-widget .cliente-info {
+      font-size: 10px; /* Tamaño de fuente más pequeño para pantallas pequeñas */
+    }
+  }
+    
+    

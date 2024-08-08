@@ -99,6 +99,7 @@ export class EditCarpetaComponent implements OnInit {
   public tipo: string = 'Ingreso';
   public subtotalIngresos: number = 0;
   public subtotalEgresos: number = 0;
+  public subtotalDeudas: number = 0;
   public movimientosFiltrados: Movimiento[] = [];
 
   public tags: Tag[] = [];
@@ -156,7 +157,7 @@ export class EditCarpetaComponent implements OnInit {
       this.carpetaService.showCarpeta(this.carpeta_id!.toString()).subscribe((resp: any) => {
         this.carpeta_selected = resp.carpetas;
         this.autos = this.carpeta_selected.autos;
-        this.cliente_id = this.carpeta_selected.cliente_id;
+        this.cliente_id = this.carpeta_selected.cliente_id;  
         this.nro_carpeta = this.carpeta_selected.nro_carpeta;
         this.fecha_inicio = new Date(this.carpeta_selected.fecha_inicio).toLocaleDateString();
         this.tipo_proceso_id = this.carpeta_selected.tipo_proceso_id;
@@ -380,6 +381,57 @@ export class EditCarpetaComponent implements OnInit {
     });
   }
 
+  agregarDeuda(): void {
+    if (!this.user || !this.user.id) {
+      console.error('Usuario no autenticado o ID de usuario no disponible');
+      return;
+    }
+  
+    if (!this.cliente_id) {  // Verifica que este campo tenga un valor válido
+      console.error('ID del cliente no disponible');
+      return;
+    }
+  
+    const data = {
+      carpeta_id: this.carpeta_id,
+      user_id: this.user.id,
+      concepto: this.concepto,
+      monto: this.monto,
+      tipo: 'deuda',
+      fecha: new Date().toISOString().split('T')[0],
+      patient_id: this.cliente_id  // Cambiado de cliente_id a patient_id
+    };
+  
+    this.carpetaService.addIngresoEgreso(data).subscribe((resp: any) => {
+      this.ingresosEgresos.push(resp);
+      this.concepto = '';
+      this.monto = 0;
+      this.calcularSubtotal();
+    }, (error) => {
+      console.error('Error agregando Deuda:', error);
+    });
+  }
+  
+
+  pagarDeuda(deudaId: number): void {
+    const montoPago = prompt('Ingrese el monto a pagar:');
+    if (!montoPago || isNaN(Number(montoPago))) {
+      alert('Monto inválido');
+      return;
+    }
+
+    const data = {
+      monto: Number(montoPago)
+    };
+
+    this.carpetaService.payDeuda(deudaId, data).subscribe((resp: any) => {
+      this.cargarIngresosEgresos();
+      this.calcularSubtotal();
+    }, (error) => {
+      console.error('Error pagando Deuda:', error);
+    });
+  }
+
   eliminarIngresoEgreso(index: number): void {
     const id = this.ingresosEgresos[index]["id"];
     this.carpetaService.deleteIngresoEgreso(id).subscribe(() => {
@@ -394,6 +446,9 @@ export class EditCarpetaComponent implements OnInit {
       .reduce((acc: number, item: IngresoEgreso) => acc + Number(item.monto), 0);
     this.subtotalEgresos = this.ingresosEgresos
       .filter((item: IngresoEgreso) => item.tipo === 'egreso')
+      .reduce((acc: number, item: IngresoEgreso) => acc + Number(item.monto), 0);
+    this.subtotalDeudas = this.ingresosEgresos
+      .filter((item: IngresoEgreso) => item.tipo === 'deuda')
       .reduce((acc: number, item: IngresoEgreso) => acc + Number(item.monto), 0);
   }
 

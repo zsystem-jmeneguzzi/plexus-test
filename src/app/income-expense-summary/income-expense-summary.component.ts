@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { IncomeExpenseSummaryService } from '../income-expense-summary.service';
 import { ActivatedRoute } from '@angular/router';
+import * as moment from 'moment'; // Importar moment.js para manejar fechas en el frontend
 
-interface IngresoEgreso {
+interface IngresoEgresoDeuda {
   id: any;
   monto: number;
   tipo: string;
   fecha: Date;
   autos: string;
   concepto: string;
-  abogado: string;
 }
 
 @Component({
@@ -25,23 +25,18 @@ export class IncomeExpenseSummaryComponent implements OnInit {
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
 
-  ingresosEgresos: IngresoEgreso[] = [];
-  ingresosEgresosFiltrados: IngresoEgreso[] = [];
+  ingresosEgresosDeudas: IngresoEgresoDeuda[] = [];
+  ingresosEgresosDeudasFiltrados: IngresoEgresoDeuda[] = [];
 
   subtotalIngresos: number = 0;
   subtotalEgresos: number = 0;
+  subtotalDeudas: number = 0;
   carpeta_id: any = 0;
-
-  public text_success: string = '';
-  public text_validation: string = '';
-  public tipo_evento: string = '';
-  public hora_vencimiento: string = '08:00';
-  public created_at: any = '';
-  public user: any = {};
 
   public concepto: string = '';
   public monto: number = 0;
-  public tipo: string = 'Ingreso';
+  public tipo: string = 'ingreso';
+  public user: any;
 
   constructor(
     private incomeExpenseSummaryService: IncomeExpenseSummaryService,
@@ -50,32 +45,36 @@ export class IncomeExpenseSummaryComponent implements OnInit {
 
   ngOnInit(): void {
     this.user = JSON.parse(localStorage.getItem('user') || '{}');
-    this.loadIngresosEgresos();
+    if (!this.user || !this.user.id) {
+      console.error('Usuario no autenticado o ID de usuario no disponible');
+      return;
+    }
+    this.loadIngresosEgresosDeudas();
     this.activedRoute.params.subscribe((resp: any) => {
       this.carpeta_id = resp.id;
     });
   }
 
-  loadIngresosEgresos() {
+  loadIngresosEgresosDeudas() {
     this.incomeExpenseSummaryService.getAllIngresosEgresos().subscribe((data: any) => {
-      this.ingresosEgresos = data.map((item: any) => {
-        const fechaLocal = new Date(item.fecha); // Asume que las fechas ya están en la zona horaria correcta
+      this.ingresosEgresosDeudas = data.map((item: any) => {
+        const fechaLocal = moment(item.fecha).toDate(); // Usar moment.js para manejar la fecha
         return {
           ...item,
           monto: parseFloat(item.monto),
-          fecha: fechaLocal
+          fecha: fechaLocal,
+          autos: item.autos || 'N/A'
         };
       });
       this.aplicarFiltros();
     });
   }
-  
 
   aplicarFiltros(): void {
-    this.ingresosEgresosFiltrados = this.ingresosEgresos.filter(item => {
+    this.ingresosEgresosDeudasFiltrados = this.ingresosEgresosDeudas.filter(item => {
       const cumpleCarpeta = this.filtroCarpeta ? item.autos?.includes(this.filtroCarpeta) : true;
-      const cumpleFechaInicio = this.filtroFechaInicio ? new Date(item.fecha) >= new Date(this.filtroFechaInicio) : true;
-      const cumpleFechaFin = this.filtroFechaFin ? new Date(item.fecha) <= new Date(this.filtroFechaFin) : true;
+      const cumpleFechaInicio = this.filtroFechaInicio ? moment(item.fecha).isSameOrAfter(this.filtroFechaInicio) : true;
+      const cumpleFechaFin = this.filtroFechaFin ? moment(item.fecha).isSameOrBefore(this.filtroFechaFin) : true;
       return cumpleCarpeta && cumpleFechaInicio && cumpleFechaFin;
     });
     this.calcularSubtotales();
@@ -89,24 +88,28 @@ export class IncomeExpenseSummaryComponent implements OnInit {
   }
 
   calcularSubtotales() {
-    this.subtotalIngresos = this.ingresosEgresosFiltrados
+    this.subtotalIngresos = this.ingresosEgresosDeudasFiltrados
       .filter(item => item.tipo === 'ingreso')
       .reduce((sum, item) => sum + item.monto, 0);
 
-    this.subtotalEgresos = this.ingresosEgresosFiltrados
+    this.subtotalEgresos = this.ingresosEgresosDeudasFiltrados
       .filter(item => item.tipo === 'egreso')
+      .reduce((sum, item) => sum + item.monto, 0);
+
+    this.subtotalDeudas = this.ingresosEgresosDeudasFiltrados
+      .filter(item => item.tipo === 'deuda')
       .reduce((sum, item) => sum + item.monto, 0);
   }
 
-  eliminarIngresoEgreso(index: number): void {
-    const id = this.ingresosEgresosFiltrados[index].id;
+  eliminarIngresoEgresoDeuda(index: number): void {
+    const id = this.ingresosEgresosDeudasFiltrados[index].id;
     this.incomeExpenseSummaryService.deleteIngresoEgreso(id).subscribe(() => {
-      this.ingresosEgresosFiltrados.splice(index, 1);
+      this.ingresosEgresosDeudasFiltrados.splice(index, 1);
       this.calcularSubtotales();
     });
   }
 
-  agregarIngreso(): void {
+  agregarIngresoEgresoDeuda(): void {
     if (!this.user || !this.user.id) {
       console.error('Usuario no autenticado o ID de usuario no disponible');
       return;
@@ -117,42 +120,24 @@ export class IncomeExpenseSummaryComponent implements OnInit {
       user_id: this.user.id,
       concepto: this.concepto,
       monto: this.monto,
-      tipo: 'ingreso',
-      fecha: new Date().toISOString().split('T')[0]
+      tipo: this.tipo,
+      fecha: moment().format('YYYY-MM-DD') // Usar moment.js para obtener la fecha actual
     };
 
     this.incomeExpenseSummaryService.addIngresoEgreso(data).subscribe((resp: any) => {
-      this.ingresosEgresos.push(resp);
+      const nuevoItem = {
+        ...resp,
+        fecha: moment(resp.fecha).toDate(),
+        autos: resp.autos || 'N/A'
+      };
+      this.ingresosEgresosDeudas.push(nuevoItem);
+      this.aplicarFiltros();
+      this.calcularSubtotales();
       this.concepto = '';
       this.monto = 0;
-      this.calcularSubtotales();
+      this.tipo = 'ingreso';
     }, (error) => {
-      console.error('Error agregando Ingreso:', error);
-    });
-  }
-
-  agregarEgreso(): void {
-    if (!this.user || !this.user.id) {
-      console.error('Usuario no autenticado o ID de usuario no disponible');
-      return;
-    }
-
-    const data = {
-      carpeta_id: this.carpeta_id || null,
-      user_id: this.user.id,
-      concepto: this.concepto,
-      monto: this.monto,
-      tipo: 'egreso',
-      fecha: new Date().toISOString().split('T')[0]
-    };
-
-    this.incomeExpenseSummaryService.addIngresoEgreso(data).subscribe((resp: any) => {
-      this.ingresosEgresos.push(resp);
-      this.concepto = '';
-      this.monto = 0;
-      this.calcularSubtotales();
-    }, (error) => {
-      console.error('Error agregando Egreso:', error);
+      console.error('Error agregando:', error);
     });
   }
 }

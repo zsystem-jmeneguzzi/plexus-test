@@ -5,7 +5,7 @@
     <div class="content">
       <div class="row">
         <div class="col-sm-12">
-          <h2>Resumen de Ingresos y Egresos</h2>
+          <h2>Resumen de Ingresos, Egresos y Deudas</h2>
           <div class="row">
             <div class="col-12">
               <!-- Filtros -->
@@ -14,7 +14,6 @@
                   <label for="carpeta">Nombre de la Carpeta</label>
                   <input type="text" id="carpeta" [(ngModel)]="filtroCarpeta" class="form-control">
                 </div>
-                
                 <div class="col-12 col-md-6 col-xl-3 form-group">
                   <label for="fechaInicio">Fecha de Inicio</label>
                   <input type="date" id="fechaInicio" [(ngModel)]="filtroFechaInicio" class="form-control">
@@ -27,72 +26,89 @@
                   <button (click)="aplicarFiltros()" class="btn btn-primary">Aplicar Filtros</button>
                   <button (click)="limpiarFiltros()" class="btn btn-secondary">Limpiar Filtros</button>
                 </div>
-
-
-                <div class="form-group">
+              </div>
+              <!-- Agregar Ingreso, Egreso, y Deuda -->
+              <div class="row">
+                <div class="col-12 col-md-4 form-group">
                   <label for="concepto">Concepto:</label>
                   <input type="text" id="concepto" [(ngModel)]="concepto" class="form-control">
                 </div>
-                <div class="form-group">
+                <div class="col-12 col-md-4 form-group">
                   <label for="monto">Monto:</label>
                   <input type="number" id="monto" [(ngModel)]="monto" class="form-control">
                 </div>
-                <div class="form-group text-center">
-                  <button (click)="agregarIngreso()" class="btn btn-success mt-2 me-2">Agregar Ingreso</button>
-                  <button (click)="agregarEgreso()" class="btn btn-danger mt-2">Agregar Egreso</button>
+                <div class="col-12 col-md-4 form-group">
+                  <label for="tipo">Tipo:</label>
+                  <select id="tipo" [(ngModel)]="tipo" class="form-control">
+                    <option value="ingreso">Ingreso</option>
+                    <option value="egreso">Egreso</option>
+                    <!-- <option value="deuda">Deuda</option> -->
+                  </select>
+                </div>
+                <div class="col-12 text-center">
+                  <button (click)="agregarIngresoEgresoDeuda()" class="btn btn-success mt-2">Agregar</button>
                 </div>
               </div>
-              <!-- Tabla de Ingresos y Egresos -->
+              <!-- Tabla de Ingresos, Egresos y Deudas -->
               <div class="col-sm-12">
                 <div class="card">
-                    <div class="card-body">
-                        <form>
-                    <table class="card-body table">
+                  <div class="card-body">
+                    <table class="table">
                       <thead>
-                        <tr>
-                          <th>Fecha</th>
-                          <th>Autos</th>
-                          <th>Concepto</th>
-                          <th>Ingreso</th>
-                          <th>Egreso</th>
-                          <th></th>
-                        </tr>
+                          <tr>
+                              <th>Fecha</th>
+                              <th>Autos</th>
+                              <th>Concepto</th>
+                              <th>Ingreso</th>
+                              <th>Egreso</th>
+                              <th>Deuda</th>
+                              <th></th>
+                          </tr>
                       </thead>
                       <tbody>
-                        <tr *ngFor="let item of ingresosEgresosFiltrados; let i = index">
-                          <td>{{ item.fecha | date:'dd/MM/yyyy' }}</td>
-                          <td>{{ item.autos }}</td>
-                          <td>{{ item.concepto }}</td>
-                          <td>{{ item.tipo === 'ingreso' ? (item.monto | currency) : '' }}</td>
-                          <td>{{ item.tipo === 'egreso' ? (item.monto | currency) : '' }}</td>
-                          <td>
-                            <button (click)="eliminarIngresoEgreso(i)" class="btn btn-danger btn-sm">X</button>
-                          </td>
-                        </tr>
+                          <tr *ngFor="let item of ingresosEgresosDeudasFiltrados; let i = index">
+                              <td>{{ item.fecha | date:'dd/MM/yyyy' }}</td>
+                              <td>{{ item.autos }}</td> <!-- Asegúrate de que esta línea esté correctamente apuntando a item.autos -->
+                              <td>{{ item.concepto }}</td>
+                              <td>{{ item.tipo === 'ingreso' ? (item.monto | currency) : '' }}</td>
+                              <td>{{ item.tipo === 'egreso' ? (item.monto | currency) : '' }}</td>
+                              <td>{{ item.tipo === 'deuda' ? (item.monto | currency) : '' }}</td>
+                              <td>
+                                  <button (click)="eliminarIngresoEgresoDeuda(i)" class="btn btn-danger btn-sm">X</button>
+                              </td>
+                          </tr>
                       </tbody>
                       <tfoot>
-                        <tr>
-                          <td colspan="3" class="text-end">Subtotal Ingresos:</td>
-                          <td>{{ subtotalIngresos | currency }}</td>
-                          <td></td>
-                        </tr>
-                        <tr>
-                          <td colspan="3" class="text-end">Subtotal Egresos:</td>
-                          <td></td>
-                          <td>{{ subtotalEgresos | currency }}</td>
-                        </tr>
-                        <tr>
-                          <td colspan="3" class="text-end">Total:</td>
-                          <td>{{ subtotalIngresos - subtotalEgresos | currency }}</td>
-                          <td></td>
-                        </tr>
+                          <tr>
+                              <td colspan="3" class="text-end">Subtotal Ingresos:</td>
+                              <td>{{ subtotalIngresos | currency }}</td>
+                              <td></td>
+                              <td></td>
+                          </tr>
+                          <tr>
+                              <td colspan="3" class="text-end">Subtotal Egresos:</td>
+                              <td></td>
+                              <td>{{ subtotalEgresos | currency }}</td>
+                              <td></td>
+                          </tr>
+                          <tr>
+                              <td colspan="3" class="text-end">Subtotal Deudas:</td>
+                              <td></td>
+                              <td></td>
+                              <td>{{ subtotalDeudas | currency }}</td>
+                          </tr>
+                          <tr>
+                              <td colspan="3" class="text-end">Total:</td>
+                              <td>{{ subtotalIngresos - subtotalEgresos - subtotalDeudas | currency }}</td>
+                              <td></td>
+                              <td></td>
+                          </tr>
                       </tfoot>
-                </table>
-              </form>
-            </div>
-
+                  </table>
+                  
+                  </div>
+                </div>
               </div>
-             
             </div>
           </div>
         </div>
