@@ -110,9 +110,15 @@ export class CarpetaService {
   // TAGS
 
   getAllTags(): Observable<Tag[]> {
-    let headers = new HttpHeaders({'Authorization': 'Bearer ' + this.authService.token});
+    let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.token });
     const url = `${URL_SERVICIOS}/tags`;
-    return this.http.get<Tag[]>(url, {  headers: headers  });
+    return this.http.get<Tag[]>(url, { headers: headers });
+  }
+
+  filterCarpetas(filters: any): Observable<any> {
+    let headers = new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.token });
+    const url = `${URL_SERVICIOS}/carpetas/filter`;
+    return this.http.post(url, filters, { headers: headers });
   }
 
   getTags(carpetaId: string): Observable<any> {
@@ -150,5 +156,7 @@ export class CarpetaService {
     return this.http.get(URL, { headers: headers });
   }
 
+ 
+  
 }
 

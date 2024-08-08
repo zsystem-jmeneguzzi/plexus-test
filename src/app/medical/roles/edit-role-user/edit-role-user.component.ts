@@ -1,3 +1,4 @@
+//edit-role-user.component.ts
 import { Component } from '@angular/core';
 import { DataService } from 'src/app/shared/data/data.service';
 import { RolesService } from '../service/roles.service';
@@ -58,27 +59,28 @@ export class EditRoleUserComponent {
       console.log(this.permissions);
     };
   }
-  save(){
+  save() {
     this.valid_form = false;
-    if(!this.name  || this.permissions.length == 0){
+    if (!this.name || this.permissions.length == 0) {
       this.valid_form = true;
       return;
     }
     let data = {
       name: this.name,
-      permisions:this.permissions,
+      permisions: this.permissions,
     };
     this.valid_form_success = false;
     this.text_validation = null;
-    this.RoleService.editRoles(data,this.role_id).subscribe((resp:any) => {
+    this.RoleService.editRoles(data, this.role_id).subscribe((resp: any) => {
       console.log(resp);
-      if(resp.message == 403){
+      if (resp.message == 403) {
         this.text_validation = resp.message_text;
-        return ;
+        return;
       }
       this.valid_form_success = true;
-    })
+    });
   }
+  
   }
 
 

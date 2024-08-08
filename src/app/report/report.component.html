@@ -1,0 +1,66 @@
+<div class="main-wrapper">
+  <app-header [ngClass]="{'d-none': sideBarActivePath === false && headerActivePath === false}"></app-header>
+  <app-sidebar [ngClass]="{'d-none': sideBarActivePath === false && headerActivePath === false}"></app-sidebar>
+  <div class="page-wrapper">
+    <div class="content">
+      <div class="filters">
+        <h2>Filtros</h2>
+        <form (ngSubmit)="applyFilters(filters)">
+          <label for="estado">Estado:</label>
+          <select id="estado" [(ngModel)]="filters.estado" name="estado">
+            <option value="">Seleccione...</option>
+            <option value="1">En trámite</option>
+            <option value="2">Finalizado</option>
+          </select>
+
+          <label for="abogado">Abogado:</label>
+          <input id="abogado" [(ngModel)]="filters.abogado_id" name="abogado_id" type="number" placeholder="ID del abogado">
+
+          <label for="cliente">Cliente:</label>
+          <input id="cliente" [(ngModel)]="filters.cliente_id" name="cliente_id" type="number" placeholder="ID del cliente">
+
+          <label for="tag">Tag:</label>
+          <input id="tag" [(ngModel)]="filters.tag_id" name="tag_id" type="number" placeholder="ID del tag">
+
+          <label for="fecha_inicio">Fecha Inicio:</label>
+          <input id="fecha_inicio" [(ngModel)]="filters.fecha_inicio" name="fecha_inicio" type="date">
+
+          <label for="fecha_fin">Fecha Fin:</label>
+          <input id="fecha_fin" [(ngModel)]="filters.fecha_fin" name="fecha_fin" type="date">
+
+          <button type="submit">Aplicar Filtros</button>
+        </form>
+      </div>
+
+      <div class="reports">
+        <h2>Reportes</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Estado</th>
+              <th>Cliente</th>
+              <th>Abogado</th>
+              <th>Fecha de Inicio</th>
+              <th>Tags</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let report of reports">
+              <td>{{ report?.id }}</td>
+              <td>{{ report?.name }}</td>
+              <td>{{ report?.estado }}</td>
+              <td>{{ report?.cliente?.name }}</td>
+              <td>{{ report?.abogado?.name }}</td>
+              <td>{{ report?.fecha_inicio }}</td>
+              <td>
+                <span *ngFor="let tag of report?.tags">{{ tag?.name }} </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

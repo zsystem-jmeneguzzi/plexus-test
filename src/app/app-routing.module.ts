@@ -1,11 +1,19 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { IncomeExpenseSummaryComponent } from './income-expense-summary/income-expense-summary.component';
+import { ReportComponent } from './report/report.component';
 
 // import { AuthGuard } from './shared/gaurd/auth.guard';
 
 const routes: Routes = [
-  { path: 'income-expense-summary', component: IncomeExpenseSummaryComponent },
+  { 
+    path: 'income-expense-summary',
+    component: IncomeExpenseSummaryComponent
+  },
+  { 
+    path: 'reports',
+    component: ReportComponent
+  },
 
   {
     path: '',
@@ -38,6 +46,7 @@ const routes: Routes = [
     redirectTo: 'error/error404',
     pathMatch: 'full',
   },
+  
 ];
 
 @NgModule({

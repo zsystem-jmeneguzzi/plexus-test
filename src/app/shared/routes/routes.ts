@@ -262,7 +262,7 @@ export class routes {
     return this.baseUrl + '/carpeta/edit-carpeta';
   }
   // public static get patientProfile(): string {
-  //   return this.baseUrl + '/patient/patient-profile';
+  //   return this.baseUrl + '/patient/patient-profile';  
   // }
   public static get carpetaSetting(): string {
     return this.baseUrl + '/carpeta/carpeta-setting';
@@ -294,8 +294,8 @@ export class routes {
   public static get expenseReports(): string {
     return this.baseUrl + '/reports/expense-reports';
   }
-  public static get invoiceReports(): string {
-    return this.baseUrl + '/reports/invoice-reports';
+  public static get Reports(): string {
+    return this.baseUrl + '/reports';
   }
   public static get setting(): string {
     return this.baseUrl + '/setting';

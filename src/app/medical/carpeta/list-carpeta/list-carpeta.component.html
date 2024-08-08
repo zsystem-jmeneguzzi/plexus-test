@@ -29,7 +29,7 @@
                     <h3>Lista de Carpetas</h3>
                     <div class="doctor-search-blk">
                       <div class="top-nav-search table-search-blk">
-                        <input class="form-control" placeholder="Buscar" [(ngModel)]="searchDataValue"
+                        <input class="form-control" placeholder="Autos, Carpeta o Abogado" [(ngModel)]="searchDataValue"
                           (keyup.enter)="searchData()">
                         <a class="btn"><img src="assets/img/icons/search-normal.svg" alt=""></a>
                       </div>
@@ -40,6 +40,18 @@
                             src="assets/img/icons/re-fresh.svg" alt=""></a>
                       </div>
                     </div>
+                    <h3>  Filtros: </h3>
+                    <div class="doctor-search-blk mt-2">
+                      <select class="form-control" [(ngModel)]="filters.estado" (change)="searchData()">
+                        <option value="">Seleccione Estado</option>
+                        <option *ngFor="let estado of estados" [value]="estado.value">{{estado.label}}</option>
+                      </select>
+                      <select class="form-control ms-2" [(ngModel)]="filters.tag_id" (change)="searchData()">
+                        <option value="">Seleccione Tag</option>
+                        <option *ngFor="let tag of tags" [value]="tag.id">{{tag.name}}</option>
+                      </select>
+                    </div>
+
                   </div>
                 </div>
                 <div class="col-auto text-end float-end ms-auto download-grp">

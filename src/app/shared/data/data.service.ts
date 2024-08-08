@@ -614,9 +614,9 @@ export class DataService {
                show_nav: true,
              },
              {
-               menuValue: 'Invoice Report',
-               route: routes.invoiceReports,
-               base: routes.invoiceReports,
+               menuValue: 'Report',
+               route: routes.Reports,
+               base: routes.Reports,
                permision: 'invoice_report',
                show_nav: true,
              },
