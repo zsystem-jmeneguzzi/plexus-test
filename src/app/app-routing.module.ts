@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { IncomeExpenseSummaryComponent } from './income-expense-summary/income-expense-summary.component';
 import { ReportComponent } from './report/report.component';
+import { CarpetaComponent } from './medical/carpeta/carpeta.component';
 
 // import { AuthGuard } from './shared/gaurd/auth.guard';
 
@@ -45,6 +46,9 @@ const routes: Routes = [
     path: '**',
     redirectTo: 'error/error404',
     pathMatch: 'full',
+  },
+  { path: 'carpeta/list/edit/:id',
+    component: CarpetaComponent
   },
   
 ];

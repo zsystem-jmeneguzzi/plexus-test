@@ -27,4 +27,9 @@ export class IncomeExpenseSummaryService {
     const headers = new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.token });
     return this.http.delete(`${URL_SERVICIOS}/ingresos_egresos/${id}`, { headers });
   }
+
+  getCarpetaDetails(carpeta_id: number): Observable<any> {
+    const headers = new HttpHeaders({ 'Authorization': 'Bearer ' + this.authService.token });
+    return this.http.get(`${URL_SERVICIOS}/carpetas/${carpeta_id}`, { headers });
+  }
 }

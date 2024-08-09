@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { IncomeExpenseSummaryService } from '../income-expense-summary.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import * as moment from 'moment'; // Importar moment.js para manejar fechas en el frontend
 
 interface IngresoEgresoDeuda {
@@ -10,6 +10,8 @@ interface IngresoEgresoDeuda {
   fecha: Date;
   autos: string;
   concepto: string;
+  cliente: string;
+  carpeta_id: number; // Agrega carpeta_id aquí
 }
 
 @Component({
@@ -24,6 +26,7 @@ export class IncomeExpenseSummaryComponent implements OnInit {
   filtroCarpeta: string = '';
   filtroFechaInicio: string = '';
   filtroFechaFin: string = '';
+  filtroTipo: string = '';
 
   ingresosEgresosDeudas: IngresoEgresoDeuda[] = [];
   ingresosEgresosDeudasFiltrados: IngresoEgresoDeuda[] = [];
@@ -37,10 +40,12 @@ export class IncomeExpenseSummaryComponent implements OnInit {
   public monto: number = 0;
   public tipo: string = 'ingreso';
   public user: any;
+  public total: number | undefined;
 
   constructor(
     private incomeExpenseSummaryService: IncomeExpenseSummaryService,
-    private activedRoute: ActivatedRoute
+    private activedRoute: ActivatedRoute,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -57,28 +62,48 @@ export class IncomeExpenseSummaryComponent implements OnInit {
 
   loadIngresosEgresosDeudas() {
     this.incomeExpenseSummaryService.getAllIngresosEgresos().subscribe((data: any) => {
-      this.ingresosEgresosDeudas = data.map((item: any) => {
-        const fechaLocal = moment(item.fecha).toDate(); // Usar moment.js para manejar la fecha
-        return {
-          ...item,
-          monto: parseFloat(item.monto),
-          fecha: fechaLocal,
-          autos: item.autos || 'N/A'
-        };
-      });
-      this.aplicarFiltros();
+        this.ingresosEgresosDeudas = data.map((item: any) => {
+            const fechaLocal = moment(item.fecha).toDate();
+            return {
+                ...item,
+                monto: parseFloat(item.monto),
+                fecha: fechaLocal,
+                autos: item.autos || '',
+                cliente: item.patient ? `${item.patient.name} ${item.patient.surname}` : '',
+                carpeta_id: item.carpeta_id // Asegúrate de que el ID de la carpeta esté disponible
+            };
+        });
+        this.aplicarFiltros();
     });
-  }
+    }
+
+    onAutosClick(carpeta_id: number) {
+      this.incomeExpenseSummaryService.getCarpetaDetails(carpeta_id).subscribe((resp: any) => {
+        if (resp.error) {
+          alert(resp.error);
+        } else {
+          this.router.navigate(['/carpeta/list/edit', carpeta_id]); // Asegúrate de que esta línea está correctamente implementada
+        }
+      }, (error) => {
+        if (error.status === 403) {
+          alert('No es posible acceder porque esta carpeta está asignada a otro abogado.');
+        } else {
+          console.error('Error al acceder a la carpeta:', error);
+        }
+      });
+    }
 
   aplicarFiltros(): void {
     this.ingresosEgresosDeudasFiltrados = this.ingresosEgresosDeudas.filter(item => {
       const cumpleCarpeta = this.filtroCarpeta ? item.autos?.includes(this.filtroCarpeta) : true;
       const cumpleFechaInicio = this.filtroFechaInicio ? moment(item.fecha).isSameOrAfter(this.filtroFechaInicio) : true;
       const cumpleFechaFin = this.filtroFechaFin ? moment(item.fecha).isSameOrBefore(this.filtroFechaFin) : true;
-      return cumpleCarpeta && cumpleFechaInicio && cumpleFechaFin;
+      const cumpleTipo = this.filtroTipo ? item.tipo === this.filtroTipo : true;
+      return cumpleCarpeta && cumpleFechaInicio && cumpleFechaFin && cumpleTipo;
     });
     this.calcularSubtotales();
   }
+  
 
   limpiarFiltros(): void {
     this.filtroCarpeta = '';
@@ -91,23 +116,35 @@ export class IncomeExpenseSummaryComponent implements OnInit {
     this.subtotalIngresos = this.ingresosEgresosDeudasFiltrados
       .filter(item => item.tipo === 'ingreso')
       .reduce((sum, item) => sum + item.monto, 0);
-
+  
     this.subtotalEgresos = this.ingresosEgresosDeudasFiltrados
       .filter(item => item.tipo === 'egreso')
       .reduce((sum, item) => sum + item.monto, 0);
-
+  
     this.subtotalDeudas = this.ingresosEgresosDeudasFiltrados
       .filter(item => item.tipo === 'deuda')
       .reduce((sum, item) => sum + item.monto, 0);
+  
+    // El total solo suma ingresos y egresos, excluyendo las deudas.
+    this.total = this.subtotalIngresos - this.subtotalEgresos;
   }
+  
 
   eliminarIngresoEgresoDeuda(index: number): void {
     const id = this.ingresosEgresosDeudasFiltrados[index].id;
     this.incomeExpenseSummaryService.deleteIngresoEgreso(id).subscribe(() => {
-      this.ingresosEgresosDeudasFiltrados.splice(index, 1);
-      this.calcularSubtotales();
+        this.ingresosEgresosDeudasFiltrados.splice(index, 1);
+        this.calcularSubtotales();
+    }, (error) => {
+        if (error.status === 403) {
+            // Muestra un mensaje de error cuando el abogado no tiene permiso para eliminar
+            alert('No es posible eliminar este item porque la carpeta está asignada a otro abogado.');
+        } else {
+            console.error('Error eliminando el item:', error);
+        }
     });
-  }
+}
+
 
   agregarIngresoEgresoDeuda(): void {
     if (!this.user || !this.user.id) {
@@ -128,7 +165,7 @@ export class IncomeExpenseSummaryComponent implements OnInit {
       const nuevoItem = {
         ...resp,
         fecha: moment(resp.fecha).toDate(),
-        autos: resp.autos || 'N/A'
+        autos: resp.autos || ''
       };
       this.ingresosEgresosDeudas.push(nuevoItem);
       this.aplicarFiltros();
